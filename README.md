@@ -42,7 +42,7 @@ python -c "import capymoa; print(capymoa.__version__)"
 
 ---
 
-![Benchmark Image](https://github.com/adaptive-machine-learning/CapyMOA/raw/main/docs/images/arf100_cpu_time.png)
+![Benchmark Image]()
 Benchmark comparing CapyMOA against other data stream libraries. The benchmark
 was performed using an ensemble of 100 ARF learners trained on
 `capymoa.datasets.RTG_2abrupt` dataset containing 100,000 samples and 30
@@ -56,13 +56,6 @@ Python's data science ecosystem.*
 If you use CapyMOA in your research, please cite us using the following BibTeX item.
 ```
 @misc{
-    gomes2025capymoaefficientmachinelearning,
-    title={{CapyMOA}: Efficient Machine Learning for Data Streams in Python},
-    author={Heitor Murilo Gomes and Anton Lee and Nuwan Gunasekara and Yibin Sun and Guilherme Weigert Cassales and Justin Jia Liu and Marco Heyden and Vitor Cerqueira and Maroua Bahri and Yun Sing Koh and Bernhard Pfahringer and Albert Bifet},
-    year={2025},
-    eprint={2502.07432},
-    archivePrefix={arXiv},
-    primaryClass={cs.LG},
-    url={https://arxiv.org/abs/2502.07432},
+
 }
 ```
