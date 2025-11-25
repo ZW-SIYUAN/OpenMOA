@@ -14,7 +14,7 @@ Networks**), and scikit-learn (**Machine Learning**). CapyMOA provides a
 **fast** python interface to leverage the state-of-the-art algorithms in the
 field of data streams.
 
-To setup CapyMOA, simply install it via pip. If you have any issues with the
+To setup OpenMOA, simply install it via pip. If you have any issues with the
 installation (like not having Java installed) or if you want GPU support, please
 refer to the [installation guide](https://capymoa.org/installation). Once installed take a
 look at the [tutorials](https://capymoa.org/tutorials.html) to get started.
@@ -27,10 +27,10 @@ java -version
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 # Install CapyMOA and its dependencies
-pip install capymoa
+pip install openmoa
 
 # Check that the install worked
-python -c "import capymoa; print(capymoa.__version__)"
+python -c "import capymoa; print(openmoa.__version__)"
 ```
 
 > **⚠️ WARNING**
