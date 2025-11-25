@@ -1,4 +1,4 @@
-# [CapyMOA](https://capymoa.org)
+# [OpenMOA](https://openmoa.net/)
 
 ![Banner Image]()
 
