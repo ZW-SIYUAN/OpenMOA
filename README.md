@@ -1,6 +1,6 @@
 # [CapyMOA](https://capymoa.org)
 
-![Banner Image](https://github.com/adaptive-machine-learning/CapyMOA/raw/main/docs/images/CapyMOA.jpeg)
+![Banner Image]()
 
 [![PyPi Version](https://img.shields.io/pypi/v/capymoa)](https://pypi.org/project/capymoa/)
 [![Join the Discord](https://img.shields.io/discord/1235780483845984367?label=Discord)](https://discord.gg/spd2gQJGAb)
