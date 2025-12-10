@@ -12,12 +12,12 @@ RUN apt-get update --yes && \
     rm -rf /var/lib/apt/lists/*
 USER ${NB_UID}
 
-# Install the latest version of the `capymoa` package.
-ARG CAPYMOA_VERSION
+# Install the latest version of the `openmoa` package.
+ARG OPENMOA_VERSION
 RUN python -m pip install --no-cache-dir torch torchvision \
         --index-url https://download.pytorch.org/whl/cpu && \
-    python -m pip install --no-cache-dir capymoa==${CAPYMOA_VERSION}
+    python -m pip install --no-cache-dir openmoa==${OPENMOA_VERSION}
 
-ENV CAPYMOA_DATASETS_DIR=${HOME}/data
+ENV OPENMOA_DATASETS_DIR=${HOME}/data
 COPY  --chown=${NB_UID} data ${HOME}/sample/data
 COPY  --chown=${NB_UID} notebooks ${HOME}/sample/notebooks

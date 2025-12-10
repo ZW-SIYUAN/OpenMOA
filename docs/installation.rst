@@ -1,7 +1,7 @@
 Installation
 ============
 
-This document describes how to install CapyMOA and its dependencies. CapyMOA is
+This document describes how to install OpenMOA and its dependencies. OpenMOA is
 tested against Python 3.10, 3.11, and 3.12. Newer versions of Python will likely
 work but have yet to be tested.
 
@@ -15,15 +15,15 @@ work but have yet to be tested.
 
    .. code:: bash
 
-      conda create -n capymoa python=3.11
-      conda activate capymoa
+      conda create -n openmoa python=3.11
+      conda activate openmoa
 
-   When your environment is activated, you can install CapyMOA by following
+   When your environment is activated, you can install OpenMOA by following
    the instructions below.
 
 #. **Java (Required)**
 
-   CapyMOA requires Java to be installed and accessible in your
+   OpenMOA requires Java to be installed and accessible in your
    environment. You can check if Java is installed by running the following
    command in your terminal:
 
@@ -35,7 +35,7 @@ work but have yet to be tested.
    Development Kit) from `this link <https://openjdk.org/install/>`__, or
    alternatively the Oracle JDK from `this
    link <https://www.oracle.com/java>`__. Linux users can also install
-   OpenJDK using their distribution's package manager.
+   OpenJDK using their distribution’s package manager.
 
    Now that Java is installed, you should see an output similar to the
    following when you run the command ``java -version``:
@@ -49,12 +49,12 @@ work but have yet to be tested.
 
 #. **PyTorch (Required)**
 
-   The CapyMOA algorithms using deep learning require PyTorch. It is not
+   The OpenMOA algorithms using deep learning require PyTorch. It is not
    installed by default because different versions are required for
    different hardware. If you want to use these algorithms, follow the
    instructions `here <https://pytorch.org/get-started/locally/>`__ to get
    the correct version for your hardware. Ensure that you install PyTorch in
-   the same virtual environment where you want to install CapyMOA.
+   the same environment virtual environment where you want to install OpenMOA.
 
    For CPU only, you can install PyTorch with:
 
@@ -62,23 +62,23 @@ work but have yet to be tested.
 
       pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-#. **Install CapyMOA**
+#. **Install OpenMOA**
 
    .. code:: bash
 
-      pip install capymoa
+      pip install openmoa
 
    To verify your installation, run:
 
    .. code:: bash
 
-      python -c "import capymoa; print(capymoa.__version__)"
+      python -c "import openmoa; print(openmoa.__version__)"
 
-Install CapyMOA for Development
+Install OpenMOA for Development
 ===============================
 
-If you want to make changes to CapyMOA, you should follow these steps to set up
-an editable installation of CapyMOA, with development and documentation
+If you want to make changes to OpenMOA, you should follow these steps to set up
+an editable installation of OpenMOA, with development and documentation
 dependencies.
 
 #. **Dependencies**
@@ -88,7 +88,7 @@ dependencies.
 
 #. **Pandoc** 
    
-   Ensure that you have `Pandoc <https://pandoc.org/>`__ installed on your system.
+   Ensure that you have `Pandoc <https://pandoc.org/>`_ installed on your system.
    If it's not installed, you can install it by running the following command on
 
    .. tab-set::
@@ -105,9 +105,9 @@ dependencies.
 
                sudo brew install pandoc
 
-      .. tab-item:: Windows/Other
+      .. tab-item:: Window/Other
 
-         Follow the instructions on the `Pandoc website <https://pandoc.org/installing.html>`__.
+         Follow the instructions on the `Pandoc website <https://pandoc.org/installing.html>`_.
 
       .. tab-item:: conda
 
@@ -118,10 +118,10 @@ dependencies.
 
 #. **Clone the Repository**
    
-   If you want to contribute to CapyMOA, you should clone the repository,
-   install development dependencies, and install CapyMOA in editable mode.
+   If you want to contribute to OpenMOA, you should clone the repository,
+   install development dependencies, and install OpenMOA in editable mode.
 
-   If you are intending to contribute to CapyMOA, consider making a
+   If you are intending to contribute to OpenMOA, consider making a
    `fork <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo>`__
    of the repository and cloning your fork instead of the main
    repository. This way, you can push changes to your fork and create
@@ -129,25 +129,25 @@ dependencies.
 
    .. code:: bash
 
-      git clone https://github.com/adaptive-machine-learning/CapyMOA.git
+      git clone https://github.com/ZW-SIYUAN/OpenMOA.git
       # or clone via the SSH protocol (often preferred if you use SSH keys for git):
-      #   ``git clone with git@github.com:adaptive-machine-learning/CapyMOA.git``
+      #   ``git clone with git@github.com:ZW-SIYUAN/OpenMOA.git``
       
 
-#. **Install CapyMOA in Editable Mode**
+#. **Install OpenMOA in Editable Mode**
 
-   To install CapyMOA in editable mode with development and documentation
+   To install OpenMOA in editable mode with development and documentation
    dependencies, navigate to the root of the repository and run:
 
    .. code-block:: bash
 
-      cd CapyMOA
+      cd OpenMOA
       pip install --editable ".[dev,doc]"
 
 
 #. **Congratulations!**
 
-   You have successfully installed CapyMOA in editable mode.
+   You have successfully installed OpenMOA in editable mode.
 
    A number of utility scripts are defined in ``tasks.py`` to perform common
    tasks. You can list all available tasks by running:
@@ -158,11 +158,7 @@ dependencies.
 
    .. program-output:: python -m invoke --list
 
-   Each of these tasks can be run in the terminal through ``invoke <task>``. Running the task to build documentation would look like this:
-
-   .. code-block:: bash
-
-      invoke docs.build
-
    See the :doc:`contributing/index` guide for more information on how to
-   contribute to CapyMOA.
+   contribute to OpenMOA.
+
+

@@ -29,20 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix:
-        # For Pull Requests we run tests on Ubuntu with Python 3.10.
-        # In releases we will test on more configurations.
-        operating-system:
-          - ubuntu-latest
-          # - windows-latest
-          # - macos-latest
-        python-version:
-          - '3.10'
-          # - '3.11'
-          # - '3.12'
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Add Job Summary
+      run: cat .github/workflows/pr.md >$GITHUB_STEP_SUMMARY
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v5
@@ -87,10 +79,6 @@ jobs:
   commit:
     name: "Commit Style"
     runs-on: ubuntu-latest
-    # Only report commit style issues on push to main, not on PRs as contributors seldom
-    # want to worry about fixing commit messages. The reviewer will `squash and merge`
-    # with a proper commit message.
-    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
       - uses: wagoid/commitlint-github-action@v6
@@ -115,13 +103,3 @@ jobs:
       run: invoke docs.coverage
     - name: Build Documentation
       run: invoke docs.build
-
-    - name: Artifact name
-      run: echo DOC_ARTIFACT_NAME=doc-${GITHUB_REF//\//-} >> $GITHUB_ENV
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.DOC_ARTIFACT_NAME }}
-        retention-days: 14
-        path: docs/_build
-        overwrite: true

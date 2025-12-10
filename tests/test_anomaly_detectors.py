@@ -1,21 +1,19 @@
-from capymoa.evaluation import AnomalyDetectionEvaluator
-from capymoa.anomaly import (
+from openmoa.evaluation import AnomalyDetectionEvaluator
+from openmoa.anomaly import (
     HalfSpaceTrees,
     OnlineIsolationForest,
     Autoencoder,
     StreamRHF,
-    StreamingIsolationForest,
-    RobustRandomCutForest,
 )
-from capymoa.base import AnomalyDetector
-from capymoa.base import MOAClassifier
-from capymoa.datasets import ElectricityTiny
+from openmoa.base import AnomalyDetector
+from openmoa.base import MOAClassifier
+from openmoa.datasets import ElectricityTiny
 import pytest
 from functools import partial
 from typing import Callable, Optional
-from capymoa.base import _extract_moa_learner_CLI
+from openmoa.base import _extract_moa_learner_CLI
 
-from capymoa.stream._stream import Schema
+from openmoa.stream._stream import Schema
 
 
 @pytest.mark.parametrize(
@@ -42,36 +40,8 @@ from capymoa.stream._stream import Schema
             None,
         ),
         (partial(StreamRHF, num_trees=5, max_height=3), 0.72, None),
-        (
-            partial(
-                StreamingIsolationForest,
-                window_size=256,
-                n_trees=100,
-                height=None,
-                seed=42,
-            ),
-            0.60,
-            None,
-        ),
-        (
-            partial(
-                RobustRandomCutForest,
-                tree_size=256,
-                n_trees=100,
-                random_state=42,
-            ),
-            0.56,
-            None,
-        ),
     ],
-    ids=[
-        "HalfSpaceTrees",
-        "OnlineIsolationForest",
-        "Autoencoder",
-        "StreamRHF",
-        "StreamingIsolationForest",
-        "RobustRandomCutForest",
-    ],
+    ids=["HalfSpaceTrees", "OnlineIsolationForest", "Autoencoder", "StreamRHF"],
 )
 def test_anomaly_detectors(
     learner_constructor: Callable[[Schema], AnomalyDetector],

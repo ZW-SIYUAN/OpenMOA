@@ -169,7 +169,7 @@ def refresh_moa(ctx: Context):
     2. Download the moa.jar file `invoke build.download-moa`.
     3. Build the Java stubs. `invoke build.java-stubs`
     """
-    ctx.run("python -c 'import capymoa; capymoa.about()'")
+    ctx.run("python -c 'import openmoa; openmoa.about()'")
 
 
 @task(pre=[clean_stubs, clean_moa])
@@ -265,7 +265,7 @@ def doctest(ctx: Context, parallel: bool = True):
         # jpype can raise irrelevant warnings:
         # https://github.com/jpype-project/jpype/issues/561
         "-p no:faulthandler",
-        "src/capymoa",  # Don't run tests in the `tests` directory
+        "src/openmoa",  # Don't run tests in the `tests` directory
     ]
     cmd += ["-n=auto"] if parallel else []
     ctx.run(" ".join(cmd), echo=True)

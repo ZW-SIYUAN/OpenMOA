@@ -1,6 +1,6 @@
-from capymoa.classifier import AdaptiveRandomForestClassifier
-from capymoa.datasets import ElectricityTiny
-from capymoa.misc import legacy_save_model, legacy_load_model, load_model
+from openmoa.classifier import AdaptiveRandomForestClassifier
+from openmoa.datasets import ElectricityTiny
+from openmoa.misc import legacy_save_model, legacy_load_model, load_model
 from tempfile import TemporaryDirectory
 import pytest
 

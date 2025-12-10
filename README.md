@@ -1,61 +1,63 @@
-# [OpenMOA](https://openmoa.net/)
+# [OpenMOA](https://openmoa.net)
 
 ![Banner Image]()
 
-[![PyPi Version](https://img.shields.io/pypi/v/capymoa)](https://pypi.org/project/capymoa/)
+[![PyPi Version](https://img.shields.io/pypi/v/openmoa)](https://pypi.org/project/openmoa/)
 [![Join the Discord](https://img.shields.io/discord/1235780483845984367?label=Discord)](https://discord.gg/spd2gQJGAb)
-[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://capymoa.org)
-[![GitHub](https://img.shields.io/github/stars/adaptive-machine-learning/CapyMOA?style=social)](https://github.com/adaptive-machine-learning/CapyMOA)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue)](https://openmoa.net/docs/)
+[![GitHub](https://img.shields.io/github/stars/ZW-SIYUAN/OpenMOA?style=social)](https://github.com/ZW-SIYUAN/OpenMOA)
 
-
-Machine learning library tailored for data streams. Featuring a Python API
-tightly integrated with MOA (**Stream Learners**), PyTorch (**Neural
-Networks**), and scikit-learn (**Machine Learning**). CapyMOA provides a
-**fast** python interface to leverage the state-of-the-art algorithms in the
-field of data streams.
+OpenMOA is a unified machine learning library designed for Utilitarian Online Learning (UOL) in dynamic feature spaces.
+It offers a clean Python API that integrates seamlessly with MOA (online learners), OpenMOA (stream learning backend), and PyTorch (deep models).
+OpenMOA provides an efficient and extensible interface for executing state-of-the-art algorithms under evolving feature spaces, enabling reproducible, real-time learning and fair benchmarking across diverse streaming environments.
 
 To setup OpenMOA, simply install it via pip. If you have any issues with the
 installation (like not having Java installed) or if you want GPU support, please
-refer to the [installation guide](https://capymoa.org/installation). Once installed take a
-look at the [tutorials](https://capymoa.org/tutorials.html) to get started.
+refer to the [installation guide](https://openmoa.net/docs/getting-started/). Once installed take a
+look at the [tutorials](https://openmoa.net/docs/guide/tutorials/) to get started.
 
 ```bash
-# CapyMOA requires Java. This checks if you have it installed
+# OpenMOA requires Java. This checks if you have it installed
 java -version
 
-# CapyMOA requires PyTorch. This installs the CPU version
+# OpenMOA requires PyTorch. This installs the CPU version
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# Install CapyMOA and its dependencies
+# Install OpenMOA and its dependencies
 pip install openmoa
 
 # Check that the install worked
-python -c "import capymoa; print(openmoa.__version__)"
+python -c "import openmoa; print(openmoa.__version__)"
 ```
 
 > **⚠️ WARNING**
 >
-> CapyMOA is still in the early stages of development. The API is subject to
+> OpenMOA is still in the early stages of development. The API is subject to
 > change until version 1.0.0. If you encounter any issues, please report
-> them in [GitHub Issues](https://github.com/adaptive-machine-learning/CapyMOA/issues)
+> them in [GitHub Issues](https://github.com/ZW-SIYUAN/OpenMOA/issues)
 > or talk to us on [Discord](https://discord.gg/spd2gQJGAb).
 
 ---
 
 ![Benchmark Image]()
-Benchmark comparing CapyMOA against other data stream libraries. The benchmark
-was performed using an ensemble of 100 ARF learners trained on
-`capymoa.datasets.RTG_2abrupt` dataset containing 100,000 samples and 30
-features.  You can find the code to reproduce this benchmark in
-[`notebooks/benchmarking.py`](https://github.com/adaptive-machine-learning/CapyMOA/blob/main/notebooks/benchmarking.py).
-*CapyMOA has the speed of MOA with the flexibility of Python and the richness of
-Python's data science ecosystem.*
+Our benchmark evaluates ten representative UOL and OL algorithms across 11 binary and 6 multi-class datasets under three dynamic feature-space paradigms.
+Built upon OpenMOA’s unified API, all experiments follow standardized feature-evolution assumptions and prequential evaluation protocols, enabling fair, reproducible, and comprehensive comparison across diverse streaming environments.
+You can find the code to reproduce this benchmark in
+[`demo/demo_fesl_benchmark_binary.py`](https://github.com/ZW-SIYUAN/OpenMOA/blob/main/demo/demo_fesl_benchmark_binary.py).
 
-## Cite Us 
+## Cite Us
 
-If you use CapyMOA in your research, please cite us using the following BibTeX item.
+If you use OpenMOA in your research, please cite us using the following BibTeX item.
+
 ```
 @misc{
-
+    ZhiliWang2025OpenMOAAPythonLibraryforUtilitarianOnlineLearning,
+    title={{OpenMOA}: A Python Library for Utilitarian Online Learning},
+    author={Zhili Wang, Yi He},
+    year={2025},
+    eprint={},
+    archivePrefix={arXiv},
+    primaryClass={cs.LG},
+    url={https://arxiv.org/abs/},
 }
 ```

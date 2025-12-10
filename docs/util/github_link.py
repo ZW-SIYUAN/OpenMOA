@@ -4,8 +4,8 @@ https://github.com/scikit-learn/scikit-learn/blob/8721245511de2f225ff5f9aa5f5fad
 
 import inspect
 import os
-import sys
 import subprocess
+import sys
 from functools import partial
 from operator import attrgetter
 
@@ -66,19 +66,11 @@ def _linkcode_resolve(domain, info, package, url_fmt, revision):
     if not fn:
         return
 
+    fn = os.path.relpath(fn, start=os.path.dirname(__import__(package).__file__))
     try:
         lineno = inspect.getsourcelines(obj)[1]
     except Exception:
-        # Those without line numbers are external libraries whose links aren't needed
-        return
-
-    try:
-        fn = os.path.relpath(fn, start=os.path.dirname(__import__(package).__file__))
-    except Exception:
-        # In some circumstances, you may get an error while building docs
-        # if components cross drives (I.e., C:/ and D:/)
-        return
-
+        lineno = ""
     return url_fmt.format(revision=revision, package=package, path=fn, lineno=lineno)
 
 

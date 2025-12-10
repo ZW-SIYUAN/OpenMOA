@@ -6,20 +6,16 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import os
-import sys
 from pathlib import Path
-from capymoa.__about__ import __version__
+from openmoa.__about__ import __version__
 from docs.util.github_link import make_linkcode_resolve
-
-# Any subprocesses created during document building should use the same python environment
-os.environ["PYTHONEXECUTABLE"] = sys.executable
 
 discord_link = "https://discord.gg/spd2gQJGAb"
 contact_email = "heitor.gomes@vuw.ac.nz"
-capymoa_github = "https://github.com/adaptive-machine-learning/CapyMOA"
+openmoa_github = "https://github.com/ZW-SIYUAN/OpenMOA"
 
-project = "CapyMOA"
-copyright = "2024 CapyMOA Developers"
+project = "OpenMOA"
+copyright = "2024 OpenMOA Developers"
 author = "Heitor Murilo Gomes, Anton Lee, Nuwan Gunasekara, Marco Heyden, Yibin Sun, Guilherme Weigert Cassales"
 release = __version__
 html_title = f"{project}"
@@ -57,9 +53,6 @@ nitpick_ignore_regex = [
     ("py:class", r"tqdm\..*"),
 ]
 
-# These warnings are usually false positives.
-suppress_warnings = ["myst.xref_missing"]
-
 toc_object_entries_show_parents = "hide"
 autosummary_ignore_module_all = False
 autosummary_generate = True
@@ -67,7 +60,7 @@ autosummary_context = {
     # List of modules that we do not include inherited members in. This is
     # usually because they import from torch.nn.Module or similar large
     # classes.
-    "inherited_members_module_denylist": ["capymoa.ann"]
+    "inherited_members_module_denylist": ["openmoa.ann"]
 }
 
 autodoc_member_order = "groupwise"
@@ -99,7 +92,7 @@ extlinks = {
 rst_epilog = f"""
 .. _Discord: {discord_link}
 .. _Email: mailto:{contact_email}
-.. _CapyMOA GitHub: {capymoa_github}
+.. _OpenMOA GitHub: {openmoa_github}
 """
 
 # -- Options for HTML output -------------------------------------------------
@@ -133,10 +126,10 @@ and classes in the documentation.
 """
 
 linkcode_resolve = make_linkcode_resolve(
-    "capymoa",
+    "openmoa",
     (
         "https://github.com/adaptive-machine-learning/"
-        "CapyMOA/blob/{revision}/src/"
+        "OpenMOA/blob/{revision}/src/"
         "{package}/{path}#L{lineno}"
     ),
 )
@@ -148,13 +141,13 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": capymoa_github,
+            "url": openmoa_github,
             "icon": "fa-brands fa-github",
             "type": "fontawesome",
         },
         {
             "name": "PyPI",
-            "url": "https://pypi.org/project/capymoa/",
+            "url": "https://pypi.org/project/openmoa/",
             "icon": "fa-solid fa-box",
             "type": "fontawesome",
         },

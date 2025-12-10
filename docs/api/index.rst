@@ -1,27 +1,27 @@
 API Reference
 =============
 
-Welcome to the CapyMOA API reference. This documentation is automatically
+Welcome to the openmoa API reference. This documentation is automatically
 generated from the source code and provides detailed information on the classes
-and functions available in CapyMOA. 
+and functions available in openmoa. 
 
-If you are looking to just use CapyMOA, you should start with the
+If you are looking to just use OpenMOA, you should start with the
 :ref:`tutorials<tutorials>`.
 
 Types
 -----
 
-These modules provide interfaces for learners, and other basic types used by
-CapyMOA.
+These module provide interfaces for learners, and other basic types used by
+openmoa.
 
 ..  autosummary::
     :toctree: modules
     :caption: Types
     :recursive:
 
-    capymoa.base
-    capymoa.type_alias
-    capymoa.instance
+    openmoa.base
+    openmoa.type_alias
+    openmoa.instance
 
 Data Streams
 ------------
@@ -34,8 +34,8 @@ includes utilities for simulating concept drifts.
     :caption: Data Streams
     :recursive:
 
-    capymoa.datasets
-    capymoa.stream
+    openmoa.datasets
+    openmoa.stream
 
 Problem Settings
 ----------------
@@ -47,14 +47,14 @@ These modules provide classes for defining machine learning problem settings.
     :caption: Problem Settings
     :recursive:
 
-    capymoa.classifier
-    capymoa.regressor
-    capymoa.anomaly
-    capymoa.ssl
-    capymoa.ocl
-    capymoa.drift
-    capymoa.clusterers
-    capymoa.automl
+    openmoa.classifier
+    openmoa.regressor
+    openmoa.anomaly
+    openmoa.ssl
+    openmoa.ocl
+    openmoa.drift
+    openmoa.clusterers
+    openmoa.automl
 
 Evaluation
 ----------
@@ -66,8 +66,8 @@ These modules provide classes for evaluating learners.
     :caption: Evaluation
     :recursive:
 
-    capymoa.evaluation
-    capymoa.prediction_interval
+    openmoa.evaluation
+    openmoa.prediction_interval
 
 Miscellaneous
 -------------
@@ -79,13 +79,13 @@ These modules provide miscellaneous utilities.
     :caption: Miscellaneous
     :recursive:
 
-    capymoa.ann
-    capymoa.splitcriteria
-    capymoa.misc
-    capymoa.env
+    openmoa.ann
+    openmoa.splitcriteria
+    openmoa.misc
+    openmoa.env
 
 Functions
 ---------
 
-..  automodule:: capymoa
+..  automodule:: openmoa
     :members:

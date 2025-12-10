@@ -14,7 +14,7 @@ Core Maintainers
 
 Active developers who oversee discussions, manage releases, ensure module
 integration, and handle coding tasks in general. A full list of committers can
-be found on the `CapyMOA GitHub`_.
+be found on the `OpenMOA GitHub`_.
 
 .. card:: Heitor Murilo Gomes (Project Leader)
 
@@ -59,7 +59,7 @@ be found on the `CapyMOA GitHub`_.
 
             Anton Lee is a PhD student in AI and a research assistant at the University
             of Wellington, where they study continual learning. As a research assistant,
-            they maintain the CapyMOA open-source data-stream learning project.
+            they maintain the OpenMOA open-source data-stream learning project.
 
             * :fab:`github` :github:`tachyonicClock`
             * :fab:`linkedin` `Linkedin <https://www.linkedin.com/in/anton-lee-0666471a5>`__
@@ -132,7 +132,7 @@ be found on the `CapyMOA GitHub`_.
 
             Yibin (Spencer) Sun is a fourth-year Ph.D. student at the University of Waikato,
             New Zealand, focusing on advanced machine learning algorithms for streaming
-            data. Yibin is also a contributor to CapyMOA platform, hoping to enrich the
+            data. Yibin is also a contributor to OpenMOA platform, hoping to enrich the
             community and society of data stream learning and research field.
 
             * :fab:`github` :github:`YibinSun`

@@ -2,11 +2,11 @@
 
 from typing import Optional
 from pytest import CaptureFixture
-from capymoa.stream.generator import WaveformGenerator
-from capymoa.datasets import ElectricityTiny
-from capymoa.classifier import NoChange
-from capymoa.anomaly import HalfSpaceTrees
-from capymoa.evaluation import (
+from openmoa.stream.generator import WaveformGenerator
+from openmoa.datasets import ElectricityTiny
+from openmoa.classifier import NoChange
+from openmoa.anomaly import HalfSpaceTrees
+from openmoa.evaluation import (
     prequential_evaluation,
     prequential_ssl_evaluation,
     prequential_evaluation_anomaly,

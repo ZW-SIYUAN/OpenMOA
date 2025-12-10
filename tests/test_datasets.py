@@ -1,20 +1,22 @@
 from typing import Sized, Type
-import capymoa.datasets as capymoa_datasets
-from capymoa.datasets import ElectricityTiny
+import openmoa.datasets as openmoa_datasets
+from openmoa.datasets import ElectricityTiny
 from tempfile import TemporaryDirectory
 import pytest
 import numpy as np
 import platform
-from capymoa.datasets._downloader import _DownloadableDataset
+from openmoa.datasets.downloader import DownloadableDataset
+from openmoa.stream import stream_from_file
+from subprocess import run
 import inspect
 
 _ALL_DOWNLOADABLE_DATASET = [
     cls
-    for _, cls in inspect.getmembers(capymoa_datasets)
-    if inspect.isclass(cls) and issubclass(cls, _DownloadableDataset)
+    for _, cls in inspect.getmembers(openmoa_datasets)
+    if inspect.isclass(cls) and issubclass(cls, DownloadableDataset)
 ]
 """Automatically collect all datasets that are instances of DownloadableDataset
-from the capymoa_datasets module.
+from the openmoa_datasets module.
 """
 
 
@@ -41,6 +43,36 @@ def test_electricity_tiny_auto_download():
         stream = ElectricityTiny(directory=tmp_dir, auto_download=False)
 
 
+def test_downloader_cli():
+    # If windows skip
+    if platform.system() == "Windows":
+        # TODO: Explicitly closing streams might help but MOA does not support
+        # this yet.
+        pytest.skip("Skipping on Windows, because TemporaryDirectory fails to cleanup.")
+
+    with TemporaryDirectory() as tmp_dir:
+        cmd = [
+            "python",
+            "-m",
+            "openmoa.datasets",
+            "--out",
+            tmp_dir,
+            "--dataset",
+            "ElectricityTiny",
+            "--yes",
+        ]
+        run([*cmd, "--format", "csv"], check=True)
+        run([*cmd, "--format", "arff"], check=True)
+
+        csv_stream = stream_from_file(tmp_dir + "/electricity_tiny.csv")
+        arff_stream = stream_from_file(tmp_dir + "/electricity_tiny.arff")
+
+        while not csv_stream.has_more_instances():
+            csv_instance = csv_stream.next_instance()
+            arff_instance = arff_stream.next_instance()
+            assert csv_instance.x == pytest.approx(arff_instance.x)
+
+
 def test_electricity_tiny_schema():
     schema = ElectricityTiny().schema
     assert schema.get_label_values() == ["0", "1"]
@@ -57,7 +89,7 @@ def test_electricity_tiny_schema():
 
 @pytest.mark.skip("This test is too slow")
 @pytest.mark.parametrize("dataset_type", _ALL_DOWNLOADABLE_DATASET)
-def test_all_datasets(dataset_type: Type[_DownloadableDataset]):
+def test_all_datasets(dataset_type: Type[DownloadableDataset]):
     with TemporaryDirectory() as tmp_dir:
         dataset = dataset_type(directory=tmp_dir)
 

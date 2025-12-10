@@ -1,0 +1,14 @@
+{
+  "learner": "FESLRegressor(s1_dim=6, s2_dim=6, overlap=100, switch=5000, method=combination)",
+  "dataset": "Fried",
+  "s1_indices": [
+    0,1,2,3,4,5
+  ],
+  "s2_indices": [
+    4,5,6,7,8,9
+  ],
+  "overlap_size": 100,
+  "switch_point": 5000,
+  "learning_rate_scale": 0.1,
+  "random_seed": 42
+}

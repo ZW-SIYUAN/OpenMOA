@@ -12,13 +12,13 @@ from river.neighbors import KNNClassifier, LazySearch
 from river.forest import ARFClassifier
 
 # Library imports
-from capymoa.evaluation.evaluation import (
+from openmoa.evaluation.evaluation import (
     test_then_train_evaluation,
     start_time_measuring,
     stop_time_measuring,
 )
-from capymoa.datasets import RTG_2abrupt
-from capymoa.classifier import (
+from openmoa.datasets import RTG_2abrupt
+from openmoa.classifier import (
     NaiveBayes,
     HoeffdingTree,
     EFDT,
@@ -35,7 +35,7 @@ RAW_RESULTS_OUTPUT_CSV = f"./benchmark_{DT_stamp}_raw.csv"
 MAX_INSTANCES = 100
 
 # Data path for river (csv file), can be downloaded using the cli tool
-# See python -m capymoa.datasets --help, python -m capymoa.datasets -d RTG_2abrupt -o "../data/"
+# See python -m openmoa.datasets --help, python -m openmoa.datasets -d RTG_2abrupt -o "../data/"
 csv_RTG_2abrupt_path = "../data/RTG_2abrupt.csv"
 
 
@@ -46,18 +46,18 @@ def checkpoint_results(results, new_result, output_file):
     return results
 
 
-def capymoa_experiment(
+def openmoa_experiment(
     dataset_name, learner_name, stream, learner, hyperparameters={}, repetitions=1
 ):
     date_time_stamp = datetime.now().strftime("[%Y-%m-%d %H:%M]")
-    print(f"[{date_time_stamp}][capymoa] Executing {learner_name} on {dataset_name}")
+    print(f"[{date_time_stamp}][openmoa] Executing {learner_name} on {dataset_name}")
 
     results = []
     raw_results = []  # Store raw results for each repetition
 
     repetition = 1
     for _ in range(repetitions):
-        print(f"[{date_time_stamp}][capymoa]\trepetition {repetition}")
+        print(f"[{date_time_stamp}][openmoa]\trepetition {repetition}")
 
         stream.restart()
         result = test_then_train_evaluation(
@@ -71,7 +71,7 @@ def capymoa_experiment(
         # Append raw result to list
         raw_results.append(
             {
-                "library": "capymoa",
+                "library": "openmoa",
                 "repetition": repetition,
                 "dataset": dataset_name,
                 "learner": learner_name,
@@ -98,7 +98,7 @@ def capymoa_experiment(
     # Create DataFrame for aggregated results
     df = pd.DataFrame(
         {
-            "library": "capymoa",
+            "library": "openmoa",
             "dataset": dataset_name,
             "learner": learner_name,
             "hyperparameters": str(hyperparameters),
@@ -225,7 +225,7 @@ def river_experiment(
     return df_aggregated, df_raw
 
 
-def benchmark_classifiers_capymoa(
+def benchmark_classifiers_openmoa(
     intermediary_results,
     raw_intermediary_results,
     data,
@@ -234,7 +234,7 @@ def benchmark_classifiers_capymoa(
     raw_results_output_csv,
 ):
     # Run experiment 1
-    result_capyNB, raw_capymoa = capymoa_experiment(
+    result_openNB, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="NaiveBayes",
         stream=data,
@@ -244,14 +244,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyNB, results_output_csv
+        intermediary_results, result_openNB, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 2
-    result_capyHT, raw_capymoa = capymoa_experiment(
+    result_openHT, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="HT",
         stream=data,
@@ -261,14 +261,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyHT, results_output_csv
+        intermediary_results, result_openHT, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 3
-    result_capyEFDT, raw_capymoa = capymoa_experiment(
+    result_openEFDT, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="EFDT",
         stream=data,
@@ -278,14 +278,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyEFDT, results_output_csv
+        intermediary_results, result_openEFDT, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 4
-    result_capyKNN, raw_capymoa = capymoa_experiment(
+    result_openKNN, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="kNN",
         stream=data,
@@ -295,14 +295,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyKNN, results_output_csv
+        intermediary_results, result_openKNN, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 5
-    result_capyARF5, raw_capymoa = capymoa_experiment(
+    result_openARF5, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="ARF5",
         stream=data,
@@ -312,14 +312,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyARF5, results_output_csv
+        intermediary_results, result_openARF5, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 6
-    result_capyARF10, raw_capymoa = capymoa_experiment(
+    result_openARF10, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="ARF10",
         stream=data,
@@ -329,14 +329,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyARF10, results_output_csv
+        intermediary_results, result_openARF10, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 7
-    result_capyARF30, raw_capymoa = capymoa_experiment(
+    result_openARF30, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="ARF30",
         stream=data,
@@ -346,14 +346,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyARF30, results_output_csv
+        intermediary_results, result_openARF30, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 8
-    result_capyARF100, raw_capymoa = capymoa_experiment(
+    result_openARF100, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="ARF100",
         stream=data,
@@ -363,14 +363,14 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyARF100, results_output_csv
+        intermediary_results, result_openARF100, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     # Run experiment 9
-    result_capyARF100j4, raw_capymoa = capymoa_experiment(
+    result_openARF100j4, raw_openmoa = openmoa_experiment(
         dataset_name=dataset_names,
         learner_name="ARF100j4",
         stream=data,
@@ -384,10 +384,10 @@ def benchmark_classifiers_capymoa(
     )
 
     intermediary_results = checkpoint_results(
-        intermediary_results, result_capyARF100j4, results_output_csv
+        intermediary_results, result_openARF100j4, results_output_csv
     )
     raw_intermediary_results = checkpoint_results(
-        raw_intermediary_results, raw_capymoa, raw_results_output_csv
+        raw_intermediary_results, raw_openmoa, raw_results_output_csv
     )
 
     return intermediary_results, raw_intermediary_results
@@ -557,15 +557,15 @@ def plot_performance(df, plot_prefix):
     df = df.sort_values("learner")
 
     # Step 2: Check if there are results for both libraries
-    capymoa_data = df[df["library"] == "capymoa"]
+    openmoa_data = df[df["library"] == "openmoa"]
     river_data = df[df["library"] == "river"]
 
-    if len(capymoa_data) == 0 or len(river_data) == 0:
+    if len(openmoa_data) == 0 or len(river_data) == 0:
         print("Results not available for both libraries.")
         return
 
     # Step 3: Get common algorithms
-    common_algorithms = set(capymoa_data["learner"]).intersection(
+    common_algorithms = set(openmoa_data["learner"]).intersection(
         set(river_data["learner"])
     )
 
@@ -578,22 +578,22 @@ def plot_performance(df, plot_prefix):
         plt.ylabel(measure.capitalize())
         plt.xticks(rotation=45)
 
-        # Capymoa bars
-        capymoa_means = capymoa_data[capymoa_data["learner"].isin(common_algorithms)][
+        # Openmoa bars
+        openmoa_means = openmoa_data[openmoa_data["learner"].isin(common_algorithms)][
             f"avg_{measure}"
         ]
-        capymoa_std = capymoa_data[capymoa_data["learner"].isin(common_algorithms)][
+        openmoa_std = openmoa_data[openmoa_data["learner"].isin(common_algorithms)][
             f"std_{measure}"
         ]
-        capymoa_colors = ["green" for _ in range(len(capymoa_means))]
-        capymoa_positions = np.arange(len(capymoa_means))
+        openmoa_colors = ["green" for _ in range(len(openmoa_means))]
+        openmoa_positions = np.arange(len(openmoa_means))
         plt.bar(
-            capymoa_positions - 0.2,
-            capymoa_means,
-            yerr=capymoa_std,
+            openmoa_positions - 0.2,
+            openmoa_means,
+            yerr=openmoa_std,
             width=0.4,
-            color=capymoa_colors,
-            label="capymoa",
+            color=openmoa_colors,
+            label="openmoa",
         )
 
         # River bars
@@ -615,7 +615,7 @@ def plot_performance(df, plot_prefix):
         )
 
         # X-axis labels
-        algorithm_names = capymoa_data[capymoa_data["learner"].isin(common_algorithms)][
+        algorithm_names = openmoa_data[openmoa_data["learner"].isin(common_algorithms)][
             "learner"
         ]
         plt.xticks(range(len(algorithm_names)), algorithm_names)
@@ -634,7 +634,7 @@ if __name__ == "__main__":
 
     rtg2abrupt_stream = RTG_2abrupt()
 
-    combined_results, raw_results = benchmark_classifiers_capymoa(
+    combined_results, raw_results = benchmark_classifiers_openmoa(
         intermediary_results=combined_results,
         raw_intermediary_results=raw_results,
         data=rtg2abrupt_stream,

@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Optional, Sized
 
-from capymoa.stream._stream import ConcatStream
+from openmoa.stream._stream import ConcatStream
 import numpy as np
 import pytest
 import torch
@@ -13,10 +13,10 @@ from com.yahoo.labs.samoa.instances import (
 from moa.streams import InstanceStream
 from torch.utils.data import TensorDataset
 
-from capymoa.datasets import ElectricityTiny, FriedTiny
-from capymoa.datasets._utils import get_download_dir
-from capymoa.instance import Instance, LabeledInstance, RegressionInstance
-from capymoa.stream import (
+from openmoa.datasets import ElectricityTiny, FriedTiny
+from openmoa.datasets._utils import get_download_dir
+from openmoa.instance import Instance, LabeledInstance, RegressionInstance
+from openmoa.stream import (
     ARFFStream,
     CSVStream,
     NumpyStream,
@@ -146,7 +146,7 @@ def test_stream_classification(stream: Stream[LabeledInstance], length: Optional
     assert length is None or (isinstance(stream, Sized) and len(stream) == length)
     moa_stream = stream.get_moa_stream()
     assert moa_stream is None or isinstance(moa_stream, InstanceStream)
-    assert stream.cli_help()
+    assert stream.CLI_help()
 
     # Check java style next instance.
     instance = stream.next_instance()
@@ -247,7 +247,7 @@ def test_stream_regression(stream: Stream[RegressionInstance], length: Optional[
     assert length is None or (isinstance(stream, Sized) and len(stream) == length)
     moa_stream = stream.get_moa_stream()
     assert moa_stream is None or isinstance(moa_stream, InstanceStream)
-    assert stream.cli_help()
+    assert stream.CLI_help()
     assert stream.has_more_instances()
     assert iter(stream) == stream
 

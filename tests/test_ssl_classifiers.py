@@ -1,10 +1,10 @@
-from capymoa.datasets._datasets import ElectricityTiny, CovtypeTiny
-from capymoa.ssl import OSNN, SLEADE
+from openmoa.datasets._datasets import ElectricityTiny, CovtypeTiny
+from openmoa.ssl.classifier import OSNN
 
 import pytest
-from capymoa.evaluation.evaluation import prequential_ssl_evaluation
-from capymoa.base import ClassifierSSL
-from capymoa.stream import Stream
+from openmoa.evaluation.evaluation import prequential_ssl_evaluation
+from openmoa.base import ClassifierSSL
+from openmoa.stream import Stream
 from functools import partial
 
 
@@ -34,24 +34,10 @@ def assert_ssl_evaluation(
     [
         (partial(OSNN, optim_steps=10), ElectricityTiny, 46.1, None),
         (partial(OSNN, optim_steps=10), CovtypeTiny, 26.3, None),
-        (
-            partial(SLEADE, base_ensemble="StreamingRandomPatches -s 3"),
-            ElectricityTiny,
-            50.8,
-            None,
-        ),
-        (
-            partial(SLEADE, base_ensemble="StreamingRandomPatches -s 3"),
-            CovtypeTiny,
-            44.7,
-            None,
-        ),
     ],
     ids=[
         "OSNN_ElectricityTiny",
         "OSNN_CovtypeTiny",
-        "SLEADE_ElectricityTiny",
-        "SLEADE_CovtypeTiny",
     ],
 )
 def test_ssl_classifiers(

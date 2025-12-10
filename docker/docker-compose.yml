@@ -1,10 +1,10 @@
 services:
-  jupyter-capymoa:
-    image: jupyter-capymoa:${CAPYMOA_VERSION}
+  jupyter-openmoa:
+    image: jupyter-openmoa:${OPENMOA_VERSION}
     ports:
       - "8888:8888"
     build:
       context: ../
       dockerfile: docker/dockerfile
       args:
-        - CAPYMOA_VERSION=${CAPYMOA_VERSION}
+        - OPENMOA_VERSION=${OPENMOA_VERSION}

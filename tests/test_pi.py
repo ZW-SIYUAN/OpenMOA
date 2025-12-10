@@ -1,10 +1,10 @@
-from capymoa.evaluation import (
+from openmoa.evaluation import (
     PredictionIntervalEvaluator,
     PredictionIntervalWindowedEvaluator,
 )
-from capymoa.datasets import Fried
-from capymoa.base import PredictionIntervalLearner
-from capymoa.prediction_interval import (
+from openmoa.datasets import Fried
+from openmoa.base import PredictionIntervalLearner
+from openmoa.prediction_interval import (
     MVE,
     AdaPI,
 )
@@ -15,8 +15,8 @@ from functools import partial
 @pytest.mark.parametrize(
     "learner_constructor,coverage,win_coverage",
     [
-        (partial(MVE), 97.8, 98.0),
-        (partial(AdaPI), 96.2, 97.0),
+        (partial(MVE), 98.7, 99.0),
+        (partial(AdaPI), 97.0, 97.0),
     ],
     ids=[
         "MVE",

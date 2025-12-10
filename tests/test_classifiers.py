@@ -10,9 +10,9 @@ import torch
 from java.lang import Exception as JException
 from pytest_subtests import SubTests
 
-from capymoa.ann import Perceptron
-from capymoa.base import Classifier, MOAClassifier, _extract_moa_learner_CLI
-from capymoa.classifier import (
+from openmoa.ann import Perceptron
+from openmoa.base import Classifier, MOAClassifier, _extract_moa_learner_CLI
+from openmoa.classifier import (
     CSMOTE,
     EFDT,
     KNN,
@@ -37,11 +37,11 @@ from capymoa.classifier import (
     StreamingRandomPatches,
     WeightedkNN,
 )
-from capymoa.datasets import ElectricityTiny
-from capymoa.evaluation import ClassificationEvaluator, prequential_evaluation
-from capymoa.misc import load_model, save_model
-from capymoa.splitcriteria import GiniSplitCriterion
-from capymoa.stream import Schema, Stream
+from openmoa.datasets import ElectricityTiny
+from openmoa.evaluation import ClassificationEvaluator, prequential_evaluation
+from openmoa.misc import load_model, save_model
+from openmoa.splitcriteria import GiniSplitCriterion
+from openmoa.stream import Schema, Stream
 
 
 @dataclass

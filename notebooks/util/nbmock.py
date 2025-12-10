@@ -6,13 +6,13 @@ from os import environ
 def mock_datasets():
     """Mock the datasets to use the tiny versions for testing."""
     import unittest.mock as mock
-    from capymoa.datasets import ElectricityTiny, CovtypeTiny, FriedTiny
-    from capymoa.ocl.datasets import TinySplitMNIST
+    from openmoa.datasets import ElectricityTiny, CovtypeTiny, FriedTiny
+    from openmoa.ocl.datasets import TinySplitMNIST
 
-    mock.patch("capymoa.datasets.Electricity", ElectricityTiny).start()
-    mock.patch("capymoa.datasets.Covtype", CovtypeTiny).start()
-    mock.patch("capymoa.datasets.Fried", FriedTiny).start()
-    mock.patch("capymoa.ocl.datasets.SplitMNIST", TinySplitMNIST).start()
+    mock.patch("openmoa.datasets.Electricity", ElectricityTiny).start()
+    mock.patch("openmoa.datasets.Covtype", CovtypeTiny).start()
+    mock.patch("openmoa.datasets.Fried", FriedTiny).start()
+    mock.patch("openmoa.ocl.datasets.SplitMNIST", TinySplitMNIST).start()
 
 
 def is_nb_fast() -> bool:
@@ -23,7 +23,7 @@ def is_nb_fast() -> bool:
     testing. This function returns True if the notebook should be run with
     faster settings.
 
-    Care should be taken to hide cells in capymoa.org that are meant for testing
+    Care should be taken to hide cells in openmoa.org that are meant for testing
     only. This is done by adding ``"nbsphinx": "hidden"`` to the cell metadata.
     See: https://nbsphinx.readthedocs.io/en/0.9.3/hidden-cells.html
     """

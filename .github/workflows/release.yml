@@ -18,7 +18,7 @@ jobs:
       matrix:
         # Python 3.9->3.11 on Ubuntu, Windows and MacOS
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -34,15 +34,12 @@ jobs:
       - name: CPU PyTorch (Linux)
         if: matrix.operating-system == 'ubuntu-latest'
         run: python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-              
+
       - name: Install dependencies
         run: python -m pip install ".[dev]"
 
       - name: PyTest
-        run: python -m invoke test.pytest
-
-      - name: Doctest
-        run: python -m invoke test.doctest
+        run: python -m invoke test.unit
 
       - name: Notebooks
         run: python -m invoke test.nb
@@ -52,23 +49,23 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: 3.11
-        cache: 'pip' # caching pip dependencies
-    - name: Install Dependencies
-      run: |
-        sudo apt-get install -y pandoc
-        python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-        python -m pip install ".[dev,doc]"
-    - name: Build Documentation
-      run: python -m invoke docs.build
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: docs/_build
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: "pip" # caching pip dependencies
+      - name: Install Dependencies
+        run: |
+          sudo apt-get install -y pandoc
+          python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install ".[dev,doc]"
+      - name: Build Documentation
+        run: python -m invoke docs.build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build
 
   release_pypi:
     name: Release / PyPi
@@ -91,15 +88,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-    
+
       - name: Install Hatch
         run: python3 -m pip install hatch~=1.9.7
 
       - name: Python Semantic Release
         id: release
-        uses: python-semantic-release/python-semantic-release@v10.4.1
+        uses: python-semantic-release/python-semantic-release@v9.5.0
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Package
         if: steps.release.outputs.released == 'true'
@@ -113,7 +110,7 @@ jobs:
         uses: python-semantic-release/upload-to-gh-release@0f96c02a48278aff14251e9f1a0d73122a8c638b
         if: steps.release.outputs.released == 'true'
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   release_docker:
     name: Release / Docker
@@ -126,13 +123,13 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -140,9 +137,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: docker/dockerfile
           tags: >-
-            ${{ secrets.DOCKERHUB_USERNAME }}/jupyter-capymoa:${{ needs.release_pypi.outputs.tag }},
-            ${{ secrets.DOCKERHUB_USERNAME }}/jupyter-capymoa:latest
-          build-args: CAPYMOA_VERSION=${{ needs.release_pypi.outputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/jupyter-openmoa:${{ needs.release_pypi.outputs.tag }},
+            ${{ secrets.DOCKERHUB_USERNAME }}/jupyter-openmoa:latest
+          build-args: OPENMOA_VERSION=${{ needs.release_pypi.outputs.tag }}
 
   website:
     name: Website

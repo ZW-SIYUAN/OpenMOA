@@ -1,5 +1,5 @@
 /* make citations muted and smaller */
-.citation, .footnote {
+.citation {
     font-size: var(--pst-font-size-milli);
     font-weight: var(--pst-font-weight-caption);
     color: var(--pst-color-text-muted);
@@ -7,7 +7,7 @@
 }
 
 /* add horizontal rule */
-.citation-list, .footnote-list {
+.citation-list {
     margin-top: var(--pst-font-size-base);
     margin-bottom: var(--pst-font-size-base);
     padding-top: var(--pst-font-size-base);
