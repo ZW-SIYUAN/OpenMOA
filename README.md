@@ -53,7 +53,7 @@ If you use OpenMOA in your research, please cite us using the following BibTeX i
 @misc{
     ZhiliWang2025OpenMOAAPythonLibraryforUtilitarianOnlineLearning,
     title={{OpenMOA}: A Python Library for Utilitarian Online Learning},
-    author={Zhili Wang, Yi He},
+    author={Zhili Wang, Heitor M.Gomes and Yi He},
     year={2025},
     eprint={},
     archivePrefix={arXiv},
