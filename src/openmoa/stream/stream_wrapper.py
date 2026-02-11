@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Literal, Optional, List
 from openmoa.stream import Stream
-from openmoa.stream._stream import Schema
+from openmoa.stream import Schema
 from openmoa.instance import LabeledInstance, RegressionInstance
 
 class OpenFeatureStream(Stream):
