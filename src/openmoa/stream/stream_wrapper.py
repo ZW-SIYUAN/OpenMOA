@@ -525,15 +525,15 @@ class CapriciousStream(Stream):
         if not self.has_more_instances():
             return None
         
-        base = self.base_stream.next_instance()
-        if not base:
+        base_instance = self.base_stream.next_instance()
+        if not base_instance:
             return None
         
         # [Fix 1] Call the helper method instead of rewriting logic
         mask = self._get_feature_mask(self._current_t)
         
         # [Optimization] Ensure float type for NaN compatibility
-        x_base = np.array(base.x, dtype=float)
+        x_base = np.array(base_instance.x, dtype=float)
         
         # [Optimization] Safe slicing if base stream is larger than d_max
         if len(x_base) > self.d_max:
@@ -545,11 +545,11 @@ class CapriciousStream(Stream):
         # [Fix 2] Support both Classification and Regression
         if self._schema.is_classification():
             new_instance = LabeledInstance.from_array(
-                self._schema, x_masked, base.y_index
+                self._schema, x_masked, base_instance.y_index
             )
         else:
             new_instance = RegressionInstance.from_array(
-                self._schema, x_masked, base.y_value
+                self._schema, x_masked, base_instance.y_value
             )
         
         self._current_t += 1
