@@ -10,10 +10,21 @@ from ._stream import (
     LibsvmStream,
     BagOfWordsStream,
 )
-from .torch import TorchClassifyStream
-from .stream_wrapper import OpenFeatureStream
+from .stream_wrapper import OpenFeatureStream, EvolvingFeatureStream
 from .stream_wrapper import CapriciousStream, TrapezoidalStream, EvolvableStream, ShuffledStream
-from . import drift, generator, preprocessing
+
+def __getattr__(name: str):
+    if name == "TorchClassifyStream":
+        from .torch import TorchClassifyStream
+        globals()["TorchClassifyStream"] = TorchClassifyStream
+        return TorchClassifyStream
+    if name in ("drift", "generator", "preprocessing"):
+        import importlib
+        mod = importlib.import_module(f".{name}", package=__name__)
+        globals()[name] = mod
+        return mod
+    raise AttributeError(f"module 'openmoa.stream' has no attribute {name!r}")
+
 
 __all__ = [
     "Stream",
@@ -22,7 +33,8 @@ __all__ = [
     "ARFFStream",
     "TorchClassifyStream",
     "CSVStream",
-    "OpenFeatureStream",    
+    "OpenFeatureStream",
+    "EvolvingFeatureStream",
     "drift",
     "generator",
     "preprocessing",

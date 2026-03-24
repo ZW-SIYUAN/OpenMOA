@@ -3,24 +3,13 @@
 import copy
 
 from openmoa.stream import MOAStream
-from moa.streams.generators import RandomTreeGenerator as MOA_RandomTreeGenerator
-from moa.streams.generators import SEAGenerator as MOA_SEAGenerator
-from moa.streams.generators import HyperplaneGenerator as MOA_HyperplaneGenerator
-from moa.streams.generators import (
-    HyperplaneGeneratorForRegression as MOA_HyperplaneGeneratorForRegression,
-)
-from moa.streams.generators import RandomRBFGenerator as MOA_RandomRBFGenerator
-from moa.streams.generators import (
-    RandomRBFGeneratorDrift as MOA_RandomRBFGeneratorDrift,
-)
-from moa.streams.generators import AgrawalGenerator as MOA_AgrawalGenerator
-from moa.streams.generators import LEDGenerator as MOA_LEDGenerator
-from moa.streams.generators import LEDGeneratorDrift as MOA_LEDGeneratorDrift
-from moa.streams.generators import WaveformGenerator as MOA_WaveformGenerator
-from moa.streams.generators import WaveformGeneratorDrift as MOA_WaveformGeneratorDrift
-from moa.streams.generators import STAGGERGenerator as MOA_STAGGERGenerator
-from moa.streams.generators import SineGenerator as MOA_SineGenerator
 from openmoa._utils import build_cli_str_from_mapping_and_locals
+
+
+def _start_jvm():
+    """Ensure the JVM is running before any MOA generator is instantiated."""
+    from openmoa._prepare_jpype import _start_jpype
+    _start_jpype()
 
 
 class RandomTreeGenerator(MOAStream):
@@ -69,6 +58,8 @@ class RandomTreeGenerator(MOAStream):
             locals()
         )  # save init args for recreation. not a deep copy to avoid unnecessary use of memory
 
+        _start_jvm()
+        from moa.streams.generators import RandomTreeGenerator as MOA_RandomTreeGenerator
         self.moa_stream = MOA_RandomTreeGenerator()
 
         self.instance_random_seed = instance_random_seed
@@ -168,6 +159,8 @@ class SEA(MOAStream):
             locals()
         )  # save init args for recreation. not a deep copy to avoid unnecessary use of memory
 
+        _start_jvm()
+        from moa.streams.generators import SEAGenerator as MOA_SEAGenerator
         self.moa_stream = MOA_SEAGenerator()
 
         self.instance_random_seed = instance_random_seed
@@ -250,6 +243,8 @@ class HyperPlaneClassification(MOAStream):
             "noise_percentage": "-n",
             "sigma_percentage": "-s",
         }
+        _start_jvm()
+        from moa.streams.generators import HyperplaneGenerator as MOA_HyperplaneGenerator
         self.moa_stream = MOA_HyperplaneGenerator()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -351,6 +346,8 @@ class HyperPlaneRegression(MOAStream):
             "sigma_percentage": "-s",
         }
 
+        _start_jvm()
+        from moa.streams.generators import HyperplaneGeneratorForRegression as MOA_HyperplaneGeneratorForRegression
         self.moa_stream = MOA_HyperplaneGeneratorForRegression()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -440,6 +437,8 @@ class RandomRBFGenerator(MOAStream):
             "number_of_attributes": "-a",
             "number_of_centroids": "-n",
         }
+        _start_jvm()
+        from moa.streams.generators import RandomRBFGenerator as MOA_RandomRBFGenerator
         self.moa_stream = MOA_RandomRBFGenerator()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -512,6 +511,8 @@ class RandomRBFGeneratorDrift(MOAStream):
             "number_of_drifting_centroids": "-k",
             "magnitude_of_change": "-s",
         }
+        _start_jvm()
+        from moa.streams.generators import RandomRBFGeneratorDrift as MOA_RandomRBFGeneratorDrift
         self.moa_stream = MOA_RandomRBFGeneratorDrift()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -598,6 +599,8 @@ class AgrawalGenerator(MOAStream):
             locals()
         )  # save init args for recreation. not a deep copy to avoid unnecessary use of memory
 
+        _start_jvm()
+        from moa.streams.generators import AgrawalGenerator as MOA_AgrawalGenerator
         self.moa_stream = MOA_AgrawalGenerator()
 
         self.instance_random_seed = instance_random_seed
@@ -660,6 +663,8 @@ class LEDGenerator(MOAStream):
         self.__init_args_kwargs__ = copy.copy(locals())
         # save init args for recreation. not a deep copy to avoid unnecessary use of memory
 
+        _start_jvm()
+        from moa.streams.generators import LEDGenerator as MOA_LEDGenerator
         self.moa_stream = MOA_LEDGenerator()
 
         self.instance_random_seed = instance_random_seed
@@ -726,6 +731,8 @@ class LEDGeneratorDrift(MOAStream):
         self.__init_args_kwargs__ = copy.copy(locals())
         # save init args for recreation. not a deep copy to avoid unnecessary use of memory
 
+        _start_jvm()
+        from moa.streams.generators import LEDGeneratorDrift as MOA_LEDGeneratorDrift
         self.moa_stream = MOA_LEDGeneratorDrift()
 
         self.instance_random_seed = instance_random_seed
@@ -798,6 +805,8 @@ class WaveformGenerator(MOAStream):
             "instance_random_seed": "-i",
             "noise": "-n",
         }
+        _start_jvm()
+        from moa.streams.generators import WaveformGenerator as MOA_WaveformGenerator
         self.moa_stream = MOA_WaveformGenerator()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -856,6 +865,8 @@ class WaveformGeneratorDrift(MOAStream):
             "noise": "-n",
             "number_of_attributes_with_drift": "-d",
         }
+        _start_jvm()
+        from moa.streams.generators import WaveformGeneratorDrift as MOA_WaveformGeneratorDrift
         self.moa_stream = MOA_WaveformGeneratorDrift()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -915,6 +926,8 @@ class STAGGERGenerator(MOAStream):
             "classification_function": "-f",
             "balance_classes": "-b",
         }
+        _start_jvm()
+        from moa.streams.generators import STAGGERGenerator as MOA_STAGGERGenerator
         self.moa_stream = MOA_STAGGERGenerator()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 
@@ -981,6 +994,8 @@ class SineGenerator(MOAStream):
             "suppress_irrelevant_attributes": "-s",
             "balance_classes": "-b",
         }
+        _start_jvm()
+        from moa.streams.generators import SineGenerator as MOA_SineGenerator
         self.moa_stream = MOA_SineGenerator()
         config_str = build_cli_str_from_mapping_and_locals(mapping, locals())
 

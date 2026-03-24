@@ -1,10 +1,27 @@
-from typing import TYPE_CHECKING
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional, Union, Tuple
 
 import numpy as np
-from com.yahoo.labs.samoa.instances import DenseInstance
-from moa.core import InstanceExample
-from typing import Optional, Union, Tuple
-from jpype import JArray, JDouble
+
+# ---------------------------------------------------------------------------
+# Lazy Java/MOA class loader
+# ---------------------------------------------------------------------------
+_jvm_ready = False
+
+
+def _ensure_jvm():
+    """Start the JVM and import Java classes into this module's namespace."""
+    global _jvm_ready
+    global DenseInstance, InstanceExample, JArray, JDouble
+    if _jvm_ready:
+        return
+    from openmoa._prepare_jpype import _start_jpype
+    _start_jpype()
+    from com.yahoo.labs.samoa.instances import DenseInstance
+    from moa.core import InstanceExample
+    from jpype import JArray, JDouble
+    _jvm_ready = True
 
 from openmoa.type_alias import FeatureVector, Label, LabelIndex, TargetValue
 
@@ -57,16 +74,19 @@ class Instance:
         :param instance: A vector of features (float values) or a Java instance.
         :raises ValueError: If the given instance type is of an unsupported type.
         """
-        self._schema: "Schema" = schema
+        self._schema: Schema = schema
         self._java_instance: Optional[InstanceExample] = None
         self._x: Optional[FeatureVector] = None
 
-        if isinstance(instance, InstanceExample):
-            self._java_instance = instance
-        elif isinstance(instance, np.ndarray):
+        if isinstance(instance, np.ndarray):
             self._x = instance
         else:
-            raise ValueError(f"Given instance type unsupported: {type(instance)}")
+            # Java InstanceExample – requires the JVM.
+            _ensure_jvm()
+            if isinstance(instance, InstanceExample):
+                self._java_instance = instance
+            else:
+                raise ValueError(f"Given instance type unsupported: {type(instance)}")
 
     @classmethod
     def from_java_instance(
@@ -141,6 +161,7 @@ class Instance:
         if self._java_instance is not None:
             return self._java_instance
         elif self._x is not None:
+            _ensure_jvm()
             assert self._x.ndim == 1, "Feature vector must be 1D."
             # Allocate Array of doubles for the Java instance.
             # The number of attributes is the same as the number of features +

@@ -1,26 +1,6 @@
-from ._adaptive_random_forest import AdaptiveRandomForestClassifier
-from ._efdt import EFDT
-from ._hoeffding_tree import HoeffdingTree
-from ._naive_bayes import NaiveBayes
-from ._online_bagging import OnlineBagging
-from ._online_adwin_bagging import OnlineAdwinBagging
-from ._leveraging_bagging import LeveragingBagging
-from ._passive_aggressive_classifier import PassiveAggressiveClassifier
-from ._sgd_classifier import SGDClassifier
-from ._knn import KNN
-from ._sgbt import StreamingGradientBoostedTrees
-from ._oza_boost import OzaBoost
-from ._majority_class import MajorityClass
-from ._no_change import NoChange
-from ._online_smooth_boost import OnlineSmoothBoost
-from ._srp import StreamingRandomPatches
-from ._hoeffding_adaptive_tree import HoeffdingAdaptiveTree
-from ._samknn import SAMkNN
-from ._dynamic_weighted_majority import DynamicWeightedMajority
-from ._csmote import CSMOTE
-from ._weightedknn import WeightedkNN
-from ._shrubs_classifier import ShrubsClassifier
-from ._finetune import Finetune
+# ---------------------------------------------------------------------------
+# UOL classifiers – pure Python/NumPy, no Java or PyTorch at import time.
+# ---------------------------------------------------------------------------
 from ._fesl_classifier import FESLClassifier
 from ._oasf_classifier import OASFClassifier
 from ._rsol_classifier import RSOLClassifier
@@ -29,8 +9,52 @@ from ._fobos_classifier import FOBOSClassifier
 from ._ftrl_classifier import FTRLClassifier
 from ._ovfm_classifier import OVFMClassifier
 from ._oslmf_classifier import OSLMFClassifier
-from ._old3s_classifier import OLD3SClassifier
-from ._owss_classifier import OWSSClassifier    
+
+# ---------------------------------------------------------------------------
+# MOA-based classifiers – loaded lazily so that importing this module does
+# not require Java when only UOL classifiers are used.
+# ---------------------------------------------------------------------------
+_MOA_CLASSIFIERS = {
+    "AdaptiveRandomForestClassifier": "._adaptive_random_forest",
+    "EFDT": "._efdt",
+    "HoeffdingTree": "._hoeffding_tree",
+    "NaiveBayes": "._naive_bayes",
+    "OnlineBagging": "._online_bagging",
+    "OnlineAdwinBagging": "._online_adwin_bagging",
+    "LeveragingBagging": "._leveraging_bagging",
+    "PassiveAggressiveClassifier": "._passive_aggressive_classifier",
+    "SGDClassifier": "._sgd_classifier",
+    "KNN": "._knn",
+    "StreamingGradientBoostedTrees": "._sgbt",
+    "OzaBoost": "._oza_boost",
+    "MajorityClass": "._majority_class",
+    "NoChange": "._no_change",
+    "OnlineSmoothBoost": "._online_smooth_boost",
+    "StreamingRandomPatches": "._srp",
+    "HoeffdingAdaptiveTree": "._hoeffding_adaptive_tree",
+    "SAMkNN": "._samknn",
+    "DynamicWeightedMajority": "._dynamic_weighted_majority",
+    "CSMOTE": "._csmote",
+    "WeightedkNN": "._weightedknn",
+    "ShrubsClassifier": "._shrubs_classifier",
+    "Finetune": "._finetune",
+    "PLASTIC": "._plastic",
+    # UOL classifiers that require PyTorch – loaded lazily to keep the
+    # pure-NumPy subset importable without a torch installation.
+    "OLD3SClassifier": "._old3s_classifier",
+    "OWSSClassifier": "._owss_classifier",
+}
+
+
+def __getattr__(name: str):
+    if name in _MOA_CLASSIFIERS:
+        import importlib
+        module = importlib.import_module(_MOA_CLASSIFIERS[name], package=__name__)
+        cls = getattr(module, name)
+        globals()[name] = cls  # cache so subsequent access is direct
+        return cls
+    raise AttributeError(f"module 'openmoa.classifier' has no attribute {name!r}")
+
 
 __all__ = [
     "AdaptiveRandomForestClassifier",
@@ -66,4 +90,5 @@ __all__ = [
     "OSLMFClassifier",
     "OLD3SClassifier",
     "OWSSClassifier",
+    "PLASTIC",
 ]

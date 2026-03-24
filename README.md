@@ -1,6 +1,6 @@
 # [OpenMOA](https://openmoa.net)
 
-![Banner Image]()
+![Banner Image](images/OpenMOA.png)
 
 [![PyPi Version](https://img.shields.io/pypi/v/openmoa)](https://pypi.org/project/openmoa/)
 [![Join the Discord](https://img.shields.io/discord/1235780483845984367?label=Discord)](https://discord.gg/spd2gQJGAb)

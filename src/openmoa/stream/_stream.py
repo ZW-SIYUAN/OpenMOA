@@ -1,18 +1,42 @@
+from __future__ import annotations
+
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Generic, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
-from com.yahoo.labs.samoa.instances import (
-    Attribute,
-    DenseInstance,
-    Instances,
-    InstancesHeader,
-)
-from moa.core import FastVector, InstanceExample
-from moa.streams import ArffFileStream, InstanceStream
 from numpy.lib import recfunctions as rfn
+
+# ---------------------------------------------------------------------------
+# Lazy Java/MOA class loader
+# ---------------------------------------------------------------------------
+# Java classes are injected into this module's global namespace on first use.
+# This ensures that ``import openmoa.stream`` never requires Java, while all
+# MOA-dependent stream classes still work once the JVM has been started.
+
+_jvm_ready = False
+
+
+def _ensure_jvm():
+    """Start the JVM (if not already running) and import MOA/Java classes
+    into this module's global namespace.  Safe to call multiple times."""
+    global _jvm_ready
+    global Attribute, DenseInstance, Instances, InstancesHeader
+    global FastVector, InstanceExample, ArffFileStream, InstanceStream
+    if _jvm_ready:
+        return
+    from openmoa._prepare_jpype import _start_jpype
+    _start_jpype()
+    from com.yahoo.labs.samoa.instances import (
+        Attribute,
+        DenseInstance,
+        Instances,
+        InstancesHeader,
+    )
+    from moa.core import FastVector, InstanceExample
+    from moa.streams import ArffFileStream, InstanceStream
+    _jvm_ready = True
 
 from openmoa.instance import (
     Instance,
@@ -382,6 +406,7 @@ class MOAStream(Stream[_AnyInstance]):
         :raises ValueError: If no schema is provided and no moa_stream is provided.
         :raises ValueError: If command line arguments are provided without a moa_stream.
         """
+        _ensure_jvm()
         self.schema = schema
         self.moa_stream = moa_stream
         self._CLI = CLI
@@ -461,6 +486,7 @@ class ARFFStream(MOAStream[_AnyInstance]):
         :param path: A filepath
         :param CLI: Additional command line arguments to pass to the MOA stream.
         """
+        _ensure_jvm()
         moa_stream = ArffFileStream(str(path), class_index)
         super().__init__(moa_stream=moa_stream, CLI=CLI)
 
@@ -510,6 +536,7 @@ class NumpyStream(Stream[_AnyInstance]):
         :param target_name: The name given to target values, defaults to None
         :param target_type: 'categorical' or 'numeric' target, defaults to None
         """
+        _ensure_jvm()
         self.current_instance_index = 0
 
         self.arff_instances_data, self.arff_instances_header, class_labels = (
@@ -649,6 +676,7 @@ def _numpy_to_arff(
 
 
 def _create_nominal_attribute(attribute_name=None, possible_values: list = None):
+    _ensure_jvm()
     value_list = FastVector()
     for value in possible_values:
         value_list.addElement(str(value))
@@ -688,6 +716,7 @@ def _init_moa_stream_and_create_moa_header(
     :return moa_header: initialized moa header which contain all necessary attribute information for all features and
         the class label
     """
+    _ensure_jvm()
     attributes = FastVector()
     # Attribute("name") will create a numeric attribute;
     # Attribute("name", array_of_values) will create a nominal attribute
@@ -734,6 +763,7 @@ def _init_moa_stream_and_create_moa_header(
 
 
 def _add_instances_to_moa_stream(moa_stream, moa_header, X, y):
+    _ensure_jvm()
     for instance_index in range(X.shape[0]):
         instance = DenseInstance(moa_header.numAttributes())
 
@@ -763,6 +793,7 @@ class CSVStream(Stream[_AnyInstance]):
         delimiter=",",
         dataset_name: Optional[str] = None,
     ):
+        _ensure_jvm()
         self.csv_file_path = csv_file_path
         self.values_for_nominal_features = values_for_nominal_features
         self.class_index = class_index
@@ -1028,6 +1059,7 @@ class LibsvmStream(Stream):
         dataset_name: str = "LibsvmDataset",
         target_type: str = "categorical",
     ):
+        _ensure_jvm()
         self.path = Path(path)
         if not self.path.exists():
             raise FileNotFoundError(f"File not found: {self.path}")
@@ -1204,6 +1236,7 @@ class BagOfWordsStream(Stream):
         normalize: bool = True,
         shuffle_seed: int = None
     ):
+        _ensure_jvm()
         self.positive_file = Path(positive_file)
         self.negative_file = Path(negative_file)
         self.dataset_name = dataset_name

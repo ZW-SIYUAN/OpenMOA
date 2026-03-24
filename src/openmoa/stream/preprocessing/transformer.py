@@ -4,8 +4,6 @@ from abc import ABC, abstractmethod
 
 from openmoa.stream import Schema, MOAStream
 from openmoa.instance import Instance
-from moa.streams import FilteredQueueStream
-import moa.streams.filters
 
 
 class Transformer(ABC):
@@ -26,9 +24,14 @@ class MOATransformer(Transformer):
     def __init__(
         self,
         schema=None,
-        moa_filter: moa.streams.filters.StreamFilter | None = None,
+        moa_filter=None,
         CLI=None,
     ):
+        from openmoa._prepare_jpype import _start_jpype
+        _start_jpype()
+        from moa.streams import FilteredQueueStream
+        import moa.streams.filters  # noqa: F401 – registers filter classes with JPype
+
         self.schema = schema
         self.CLI = CLI
         self.moa_filter = moa_filter

@@ -287,6 +287,10 @@ class OpenFeatureStream(Stream):
         return None
 
 
+# Alias: more readable name for use in papers and tutorials
+EvolvingFeatureStream = OpenFeatureStream
+
+
 class TrapezoidalStream(Stream):
     """
     A fixed-dimension stream wrapper that simulates missing features using NaN.

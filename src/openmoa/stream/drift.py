@@ -8,7 +8,6 @@ from itertools import cycle
 
 from openmoa.stream import MOAStream
 from openmoa._utils import _get_moa_creation_CLI
-from moa.streams import ConceptDriftStream as MOA_ConceptDriftStream
 
 
 class DriftStream(MOAStream):
@@ -39,6 +38,10 @@ class DriftStream(MOAStream):
           and `moa_stream` to simplify the code, focusing on other methods of stream
           configuration.
         """
+        from openmoa._prepare_jpype import _start_jpype
+        _start_jpype()
+        from moa.streams import ConceptDriftStream as MOA_ConceptDriftStream
+
         self.stream = stream
         self.drifts = []
 

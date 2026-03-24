@@ -5,7 +5,6 @@ from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
 import wget
-from moa.streams import ArffFileStream
 
 from openmoa.stream import MOAStream
 from openmoa.datasets._utils import extract, get_download_dir
@@ -109,4 +108,7 @@ class DownloadARFFGzip(DownloadableDataset):
         return extract(stream_archive)
 
     def to_stream(self, stream: Path) -> Any:
+        from openmoa._prepare_jpype import _start_jpype
+        _start_jpype()
+        from moa.streams import ArffFileStream
         return ArffFileStream(stream.as_posix(), -1)

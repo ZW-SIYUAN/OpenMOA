@@ -3,7 +3,6 @@ from typing import Optional
 
 import numpy as np
 from jpype import _jpype
-from moa.core import Utils
 from numpy.typing import NDArray
 from sklearn.base import ClassifierMixin as _SKClassifierMixin
 
@@ -196,6 +195,8 @@ class MOAClassifier(Classifier):
     """
 
     def __init__(self, moa_learner, schema=None, CLI=None, random_seed=1):
+        from openmoa._prepare_jpype import _start_jpype
+        _start_jpype()
         super().__init__(schema=schema, random_seed=random_seed)
         self.CLI = CLI
         # If moa_learner is a class identifier instead of an object
@@ -232,6 +233,7 @@ class MOAClassifier(Classifier):
         self.moa_learner.trainOnInstance(instance.java_instance)
 
     def predict(self, instance):
+        from moa.core import Utils
         return Utils.maxIndex(
             self.moa_learner.getVotesForInstance(instance.java_instance)
         )
