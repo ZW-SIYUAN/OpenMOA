@@ -83,7 +83,7 @@ class ORF3VClassifier(Classifier):
         self.d_max = d_max
         self.enable_pruning = enable_pruning
         
-        np.random.seed(random_seed)
+        # Instance-level RNG only – no global seed pollution
         self.rng = np.random.RandomState(random_seed)
         
         # Feature forests: {feature_id: FeatureForest}
@@ -117,7 +117,7 @@ class ORF3VClassifier(Classifier):
         """Train on a single instance."""
         self.t += 1
         
-        x = np.array(instance.x)
+        x = np.asarray(instance.x)
         y = instance.y_index
         
         # --- [修改开始] ---
@@ -137,7 +137,7 @@ class ORF3VClassifier(Classifier):
                 self.first_occurrence[feature_id] = self.t
                 self.weights[feature_id] = 1.0
             
-            self.feature_stats[feature_id].update(val, y)
+            self.feature_stats[feature_id].update(val, y, rng=self.rng)
         
         # Pruning check
         if self.enable_pruning and self.t > self.window_size:
@@ -157,7 +157,7 @@ class ORF3VClassifier(Classifier):
         self._update_weights(instance)
 
     def predict(self, instance: Instance) -> int:
-            x = np.array(instance.x)
+            x = np.asarray(instance.x)
             if len(self.feature_forests) == 0:
                 return 0
                 
@@ -180,7 +180,7 @@ class ORF3VClassifier(Classifier):
 
     def predict_proba(self, instance: Instance) -> np.ndarray:
             """Predict class probabilities."""
-            x = np.array(instance.x)
+            x = np.asarray(instance.x)
             
             # 如果还没建立任何森林，返回均匀分布
             if len(self.feature_forests) == 0:
@@ -214,16 +214,6 @@ class ORF3VClassifier(Classifier):
                 
             # 如果总分为0 (比如所有特征都缺失或没有匹配的森林)，返回均匀分布
             return np.ones(self.n_classes) / self.n_classes
-
-    def _update_feature_stats(self, x: np.ndarray, y: int):
-        """Update feature statistics using simplified t-digest approximation."""
-        for i, val in enumerate(x):
-            if i not in self.feature_stats:
-                self.feature_stats[i] = FeatureStats(self.n_classes, self.window_size)
-                self.first_occurrence[i] = self.t
-                self.weights[i] = 1.0
-            
-            self.feature_stats[i].update(val, y)
 
     def _initialize_forests(self):
         """Initialize feature forests after grace period."""
@@ -303,19 +293,29 @@ class ORF3VClassifier(Classifier):
         return gini_gain, class_dist_below, class_dist_above
 
     def _update_weights(self, instance: Instance):
-        """Update feature forest weights based on prediction accuracy."""
-        x = np.array(instance.x)
+        """Update feature-forest weights based on per-feature prediction accuracy.
+
+        Uses global feature IDs (from ``feature_indices`` when available) so
+        that weights are updated for the correct forest even when the physical
+        vector position differs from the global ID.
+        """
+        x      = np.array(instance.x)
         y_true = instance.y_index
-        
-        for i, feature_val in enumerate(x):
-            if i in self.feature_forests:
-                forest = self.feature_forests[i]
-                probs = forest.predict(feature_val)
+        # Mirror the same ID-resolution logic used in train() and predict()
+        indices = getattr(instance, "feature_indices", range(len(x)))
+
+        for feature_id, feature_val in zip(indices, x):
+            feature_id = int(feature_id)
+            if feature_id in self.feature_forests:
+                forest = self.feature_forests[feature_id]
+                probs  = forest.predict(feature_val)
                 y_pred = max(probs, key=probs.get) if probs else 0
-                
-                # Update weight
+
                 correct = 1 if y_pred == y_true else 0
-                self.weights[i] = (2 * self.alpha * correct + self.weights[i]) / (1 + self.alpha)
+                self.weights[feature_id] = (
+                    (2 * self.alpha * correct + self.weights[feature_id])
+                    / (1 + self.alpha)
+                )
 
     def _replace_stumps(self):
         """Replace stumps according to strategy."""
@@ -406,36 +406,37 @@ class FeatureStats:
         self.instances_seen = 0
         self.sliding_window = SlidingWindow(window_size)
     
-    def update(self, value: float, class_label: int):
-        """Update statistics with new observation."""
+    def update(self, value: float, class_label: int, rng: np.random.RandomState = None):
+        """Update statistics with a new observation.
+
+        Uses reservoir sampling (uniform random replacement) to keep a bounded
+        sample buffer.  Pass *rng* to avoid touching global numpy state.
+        """
         self.min_val = min(self.min_val, value)
         self.max_val = max(self.max_val, value)
-        
-        # 初始化该类别
+
         if class_label not in self.class_samples:
             self.class_samples[class_label] = []
-            self.class_counts[class_label] = 0
-        
-        # 存储样本（限制数量）
-        if len(self.class_samples[class_label]) >= self.max_samples:
-            # 随机替换旧样本（reservoir sampling）
-            idx = np.random.randint(0, self.max_samples)
-            self.class_samples[class_label][idx] = value
+            self.class_counts[class_label]  = 0
+
+        buf = self.class_samples[class_label]
+        if len(buf) >= self.max_samples:
+            # Reservoir sampling: replace a random existing entry
+            _rng = rng if rng is not None else np.random.RandomState()
+            buf[_rng.randint(0, self.max_samples)] = value
         else:
-            self.class_samples[class_label].append(value)
-        
+            buf.append(value)
+
         self.class_counts[class_label] += 1
         self.instances_seen += 1
         self.sliding_window.add(False)
-    
+
     def get_cdf(self, class_label: int, split_val: float) -> float:
-        """Get CDF at split_val for a class."""
-        if class_label not in self.class_samples or len(self.class_samples[class_label]) == 0:
+        """Empirical CDF at *split_val* for *class_label* (vectorised)."""
+        if class_label not in self.class_samples or not self.class_samples[class_label]:
             return 0.5
-        
-        samples = self.class_samples[class_label]
-        count_below = sum(1 for v in samples if v < split_val)
-        return count_below / len(samples)
+        arr = np.asarray(self.class_samples[class_label])
+        return float(np.sum(arr < split_val)) / len(arr)
 
 
 class SlidingWindow:

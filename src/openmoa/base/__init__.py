@@ -5,6 +5,7 @@ from openmoa.base._classifier import (
     MOAClassifier,
     SKClassifier,
 )
+from openmoa.base._sparse_mixin import SparseInputMixin
 from openmoa.base._regressor import BatchRegressor, MOARegressor, Regressor, SKRegressor
 
 # MOA-dependent base classes are loaded lazily so that
@@ -66,6 +67,7 @@ __all__ = [
     "SKClassifier",
     "ClassifierSSL",
     "MOAClassifierSSL",
+    "SparseInputMixin",
     "Regressor",
     "BatchRegressor",
     "MOARegressor",

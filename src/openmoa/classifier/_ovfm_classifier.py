@@ -18,11 +18,7 @@ import numpy as np
 import warnings
 from scipy.stats import norm
 
-# Required dependency for Empirical CDF
-try:
-    from statsmodels.distributions.empirical_distribution import ECDF
-except ImportError:
-    raise ImportError("OVFM requires 'statsmodels'. Install via: pip install statsmodels")
+# P2: statsmodels ECDF removed; replaced by np.searchsorted (numerically identical).
 
 from openmoa.base import Classifier
 from openmoa.stream import Schema
@@ -122,7 +118,7 @@ class OVFMClassifier(Classifier):
 
     def train(self, instance: Instance):
         """Accumulates instances into a buffer. When buffer full, runs EM and SGD."""
-        x = np.array(instance.x, dtype=float) 
+        x = np.asarray(instance.x, dtype=float) 
         y = 1 if instance.y_index == 1 else -1
         
         if not self._trained:
@@ -150,7 +146,7 @@ class OVFMClassifier(Classifier):
         if not self._trained:
             return np.array([0.5, 0.5])
             
-        x = np.array(instance.x, dtype=float)
+        x = np.asarray(instance.x, dtype=float)
         
         if len(x) < self._max_features_seen:
             x_padded = np.full(self._max_features_seen, np.nan)
@@ -310,9 +306,9 @@ class OVFMClassifier(Classifier):
                 continue
                 
             if self._cont_indices[i]:
-                ecdf = ECDF(win)
-                prob = ecdf(x[i])
-                prob = np.clip(prob, 1e-6, 1-1e-6)
+                sorted_win = np.sort(win)
+                prob = np.searchsorted(sorted_win, x[i], side='right') / len(sorted_win)
+                prob = np.clip(prob, 1e-6, 1 - 1e-6)
                 z[i] = norm.ppf(prob)
             else:
                 mean = np.mean(win)
@@ -320,17 +316,21 @@ class OVFMClassifier(Classifier):
                 z[i] = (x[i] - mean) / std
         return z
 
-    # === [FIXED] Correct Method Name ===
     def _init_z_ordinal(self, lower, upper):
-        Z = np.full_like(lower, np.nan)
+        """Sample latent Z uniformly between the ordinal CDF bounds.
+
+        Uses ``self._rng`` for reproducibility instead of the global
+        ``np.random`` state.
+        """
+        Z    = np.full_like(lower, np.nan)
         mask = ~np.isnan(lower)
-        if not np.any(mask): return Z
-        
-        u_lower = norm.cdf(lower[mask])
-        u_upper = norm.cdf(upper[mask])
-        
-        u_sample = np.random.uniform(u_lower, u_upper)
-        Z[mask] = norm.ppf(u_sample)
+        if not np.any(mask):
+            return Z
+
+        u_lower  = norm.cdf(lower[mask])
+        u_upper  = norm.cdf(upper[mask])
+        u_sample = self._rng.uniform(u_lower, u_upper)   # ← was: np.random.uniform
+        Z[mask]  = norm.ppf(u_sample)
         return Z
 
     def _update_feature_types(self, X):
@@ -446,9 +446,9 @@ class OnlineTransformFunction:
             vals = X[:, col_idx]
             mask = ~np.isnan(vals)
             if np.any(mask):
-                ecdf = ECDF(win)
-                probs = ecdf(vals[mask])
-                probs = np.clip(probs, 1e-5, 1-1e-5)
+                sorted_win = np.sort(win)
+                probs = np.searchsorted(sorted_win, vals[mask], side='right') / len(sorted_win)
+                probs = np.clip(probs, 1e-5, 1 - 1e-5)
                 Z[mask, i] = norm.ppf(probs)
         return Z
 
@@ -471,9 +471,9 @@ class OnlineTransformFunction:
             vals = X[:, col_idx]
             mask = ~np.isnan(vals)
             if np.any(mask):
-                ecdf = ECDF(win)
-                probs = ecdf(vals[mask])
-                z_point = norm.ppf(np.clip(probs, 1e-5, 1-1e-5))
+                sorted_win = np.sort(win)
+                probs = np.searchsorted(sorted_win, vals[mask], side='right') / len(sorted_win)
+                z_point = norm.ppf(np.clip(probs, 1e-5, 1 - 1e-5))
                 Z_lo[mask, i] = z_point - 0.1
                 Z_hi[mask, i] = z_point + 0.1
         return Z_lo, Z_hi

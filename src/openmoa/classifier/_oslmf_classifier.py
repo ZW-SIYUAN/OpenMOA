@@ -17,14 +17,9 @@ Complexity Warning:
 from __future__ import annotations
 import numpy as np
 import warnings
+from collections import deque
 from scipy.stats import norm
 from typing import Tuple, List, Optional
-
-# Required dependency
-try:
-    from statsmodels.distributions.empirical_distribution import ECDF
-except ImportError:
-    raise ImportError("OSLMF requires 'statsmodels'. Install via: pip install statsmodels")
 
 from openmoa.base import Classifier
 from openmoa.stream import Schema
@@ -93,30 +88,37 @@ class GaussianCopula:
         window_clean = window[~np.isnan(window)]
         if len(window_clean) == 0:
             return np.zeros_like(x_obs)
-        
-        ecdf = ECDF(window_clean)
-        # Smoothing factor H
-        H = len(window_clean) / (len(window_clean) + 1)
-        u = H * ecdf(x_obs)
+        # P2: replace statsmodels ECDF with np.searchsorted (numerically identical).
+        # ECDF(w)(x) = #{w_i <= x} / n; with H-smoothing: u = #{w_i <= x} / (n+1)
+        sorted_w = np.sort(window_clean)
+        n_w = len(sorted_w)
+        u = np.searchsorted(sorted_w, x_obs, side='right') / (n_w + 1)
         u = np.clip(u, 1e-10, 1 - 1e-10)
         return norm.ppf(u)
-    
+
     def _ordinal_to_latent(self, x_obs, window):
         window_clean = window[~np.isnan(window)]
         if len(window_clean) == 0:
             return np.zeros_like(x_obs), np.zeros_like(x_obs)
-        
-        ecdf = ECDF(window_clean)
+
+        sorted_w = np.sort(window_clean)
+        n_w = len(sorted_w)
         unique = np.unique(window_clean)
-        
+
         if len(unique) > 1:
             threshold = np.min(np.abs(unique[1:] - unique[:-1])) / 2
-            z_lower = norm.ppf(np.clip(ecdf(x_obs - threshold), 1e-10, 1 - 1e-10))
-            z_upper = norm.ppf(np.clip(ecdf(x_obs + threshold), 1e-10, 1 - 1e-10))
+            z_lower = norm.ppf(np.clip(
+                np.searchsorted(sorted_w, x_obs - threshold, side='right') / n_w,
+                1e-10, 1 - 1e-10
+            ))
+            z_upper = norm.ppf(np.clip(
+                np.searchsorted(sorted_w, x_obs + threshold, side='right') / n_w,
+                1e-10, 1 - 1e-10
+            ))
         else:
             z_lower = np.full_like(x_obs, -5.0)
             z_upper = np.full_like(x_obs, 5.0)
-        
+
         return z_lower, z_upper
     
     def update_covariance_em(self, X_batch, Z_latent, decay_coef=0.5):
@@ -204,27 +206,24 @@ class DensityPeakClustering:
     def __init__(self, buffer_size=200, p_arr=0.02):
         self.buffer_size = buffer_size
         self.p_arr = p_arr
-        
-        self.buffer_X = []
-        self.buffer_y = []
-        self.buffer_labeled = [] 
-        
+
+        # P2: deque with maxlen eliminates O(n) pop(0) on every add
+        self.buffer_X = deque(maxlen=buffer_size)
+        self.buffer_y = deque(maxlen=buffer_size)
+        self.buffer_labeled = deque(maxlen=buffer_size)
+
     def add_instance(self, x, y=None, is_labeled=False):
-        if len(self.buffer_X) >= self.buffer_size:
-            self.buffer_X.pop(0)
-            self.buffer_y.pop(0)
-            self.buffer_labeled.pop(0)
-        
+        # deque(maxlen=...) evicts the oldest entry automatically
         self.buffer_X.append(x)
         self.buffer_y.append(y if is_labeled else None)
         self.buffer_labeled.append(is_labeled)
-    
+
     def propagate_labels(self) -> Tuple[List, List]:
         """Core Logic: Propagate labels based on density structure."""
         if len(self.buffer_X) < 2:
-            return self.buffer_y.copy(), [1.0] * len(self.buffer_y)
-        
-        X = np.array(self.buffer_X)
+            return list(self.buffer_y), [1.0] * len(self.buffer_y)
+
+        X = np.array(list(self.buffer_X))
         n = len(X)
         
         # 1. Compute Distances
@@ -234,7 +233,7 @@ class DensityPeakClustering:
         rho, delta, nearest_higher = self._compute_density_peaks(dist_matrix)
         
         # 3. Propagate
-        pseudo_labels = self.buffer_y.copy()
+        pseudo_labels = list(self.buffer_y)
         confidence = [1.0 if labeled else 0.0 for labeled in self.buffer_labeled]
         
         # Sort by density descending
@@ -285,35 +284,47 @@ class DensityPeakClustering:
     
     def _compute_density_peaks(self, dist_matrix):
         n = len(dist_matrix)
-        
+
         # Cutoff distance (dc)
         upper_tri = dist_matrix[np.triu_indices(n, k=1)]
         if len(upper_tri) > 0:
             position = int(len(upper_tri) * self.p_arr)
             d_cut = np.sort(upper_tri)[min(position, len(upper_tri) - 1)]
-            d_cut = max(d_cut, 1e-6) # Avoid div/0
+            d_cut = max(d_cut, 1e-6)
         else:
             d_cut = 1.0
-            
+
         # Local Density (Gaussian Kernel)
-        rho = np.sum(np.exp(-(dist_matrix / d_cut) ** 2), axis=1) - 1 # Subtract self
-        
-        # Delta & Nearest Higher
-        delta = np.zeros(n)
-        nearest_higher = np.full(n, -1, dtype=int)
-        sorted_indices = np.argsort(-rho)
-        
-        for i, idx in enumerate(sorted_indices):
-            if i == 0:
-                delta[idx] = np.max(dist_matrix[idx])
-            else:
-                higher_indices = sorted_indices[:i]
-                dists_to_higher = dist_matrix[idx, higher_indices]
-                nearest_idx_in_higher = np.argmin(dists_to_higher)
-                
-                delta[idx] = dists_to_higher[nearest_idx_in_higher]
-                nearest_higher[idx] = higher_indices[nearest_idx_in_higher]
-                
+        rho = np.sum(np.exp(-(dist_matrix / d_cut) ** 2), axis=1) - 1
+
+        # P1: Vectorized delta & nearest_higher.
+        # Assign each point a rank (0 = highest density).
+        sorted_indices = np.argsort(-rho)           # same as original, no kind= change
+        rank = np.empty(n, dtype=np.intp)
+        rank[sorted_indices] = np.arange(n)
+
+        # rank_mask[i,j] is True iff point j has a strictly higher density rank than i
+        rank_mask = rank[np.newaxis, :] < rank[:, np.newaxis]   # (n, n)
+
+        # Distances to higher-density points only; everything else → inf
+        dist_masked = np.where(rank_mask, dist_matrix, np.inf)
+
+        delta = dist_masked.min(axis=1)
+        nearest_higher = np.argmin(dist_masked, axis=1).astype(np.intp)
+
+        # The highest-density point has no higher-density neighbor
+        top = sorted_indices[0]
+        delta[top] = dist_matrix[top].max()
+        nearest_higher[top] = -1
+
+        # Safety: any other point whose every neighbour was masked (shouldn't happen)
+        no_higher = np.isinf(delta)
+        no_higher[top] = False
+        if no_higher.any():
+            for idx in np.where(no_higher)[0]:
+                delta[idx] = dist_matrix[idx].max()
+                nearest_higher[idx] = -1
+
         return rho, delta, nearest_higher
 
 
@@ -326,6 +337,7 @@ class OSLMFClassifier(Classifier):
         schema: Schema,
         window_size: int = 200,
         buffer_size: int = 200,
+        batch_size: int = 50,
         learning_rate: float = 0.01,
         decay_coef: float = 0.5,
         max_ord_levels: int = 14,
@@ -334,39 +346,45 @@ class OSLMFClassifier(Classifier):
         random_seed: int = 1
     ):
         super().__init__(schema=schema, random_seed=random_seed)
-        
+
         if schema.get_num_classes() != 2:
             raise ValueError("OSLMF only supports Binary Classification.")
-            
+
         self.window_size = window_size
         self.buffer_size = buffer_size
+        # A5: DensityPeaks is batch-based in the original paper; run once per batch
+        self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.decay_coef = decay_coef
         self.max_ord_levels = max_ord_levels
         self.l2_lambda = l2_lambda
         self.ensemble_weight = ensemble_weight
-        
+
         self._rng = np.random.RandomState(random_seed)
-        
+
         self._trained = False
         self._max_features_seen = 0
-        
+
         # Components
         self._copula = None
         self._density_peaks = None
-        
+
         # Weights (+1 bias)
         self._w_obs = None
         self._w_lat = None
-        
+
         # Stats
         self._loss_obs = 0.0
         self._loss_lat = 0.0
         self._num_updates = 0
-        
+
         # Type Masks
         self._cont_indices = None
         self._ord_indices = None
+
+        # A5: batch accumulation buffer
+        self._batch_X: List[np.ndarray] = []
+        self._batch_y: List[int] = []
 
     def __str__(self):
         return f"OSLMF(win={self.window_size}, buf={self.buffer_size}, lr={self.learning_rate})"
@@ -389,88 +407,83 @@ class OSLMFClassifier(Classifier):
         self._trained = True
 
     def train(self, instance: Instance):
-        x = np.array(instance.x, dtype=float)
+        x = np.asarray(instance.x, dtype=float)
         y = 1 if instance.y_index == 1 else -1
-        
-        # In Benchmark, we assume full supervision for comparison, 
-        # but OSLMF logic treats it as "labeled instance".
-        is_labeled = True 
-        
+
         if not self._trained:
             self._initialize(x)
-            
+
         # Expand dimensions
         if len(x) > self._max_features_seen:
             self._extend_dimensions(len(x))
-            
-        # Pad Input
+
+        # Pad to current feature dimension
         x_padded = np.full(self._max_features_seen, np.nan)
         limit = min(len(x), self._max_features_seen)
         x_padded[:limit] = x[:limit]
-        
-        # === 1. Copula Updates ===
-        # Need batch for partial_fit, but here we do single instance online
-        X_batch = x_padded.reshape(1, -1)
-        self._copula.partial_fit(X_batch)
-        
-        Z_latent = self._copula.transform_to_latent(X_batch)
-        
-        # === 2. Density Peaks (Label Propagation) ===
-        # Add to buffer and get pseudo labels
-        # Note: OSLMF uses Z (latent) for distance calculation in Density Peaks
-        z_vec = Z_latent[0]
-        z_filled = np.nan_to_num(z_vec, nan=0.0)
-        
-        self._density_peaks.add_instance(z_filled, y, is_labeled=is_labeled)
-        pseudo_labels, confidence = self._density_peaks.propagate_labels()
-        
-        # Get effective label (True label or Propagated label)
-        # The latest instance is at the end of the buffer
-        effective_y = y
-        # If this instance was unlabeled (not the case here), we would use:
-        # effective_y = pseudo_labels[-1]
-        
-        # === 3. Update Copula Covariance ===
-        if is_labeled:
-             self._copula.update_covariance_em(X_batch, Z_latent, self.decay_coef)
-             
-        # === 4. Reconstruct Features ===
-        X_rec = self._copula.reconstruct_features(X_batch, Z_latent)
-        x_rec_vec = X_rec[0]
-        
-        # === 5. Update Classifiers (SGD) ===
-        # Observed
-        x_in = np.nan_to_num(x_rec_vec, nan=0.0)
-        x_in = np.append(x_in, 1.0)
-        self._sgd_update(self._w_obs, x_in, effective_y)
-        
-        # Latent
-        z_in = np.append(z_filled, 1.0)
-        self._sgd_update(self._w_lat, z_in, effective_y)
-        
-        # === 6. Update Ensemble ===
-        score_obs = np.dot(self._w_obs, x_in)
-        score_lat = np.dot(self._w_lat, z_in)
-        
-        loss_obs = self._logistic_loss(score_obs, effective_y)
-        loss_lat = self._logistic_loss(score_lat, effective_y)
-        
-        self._loss_obs += loss_obs
-        self._loss_lat += loss_lat
-        self._num_updates += 1
-        
-        # Update Alpha
-        tau = 2 * np.sqrt(2 * np.log(2) / max(1, self._num_updates))
-        w_o = np.exp(-tau * self._loss_obs)
-        w_z = np.exp(-tau * self._loss_lat)
-        if w_o + w_z > 0:
-            self.ensemble_weight = w_o / (w_o + w_z)
+
+        # === 1. Copula sliding-window update (per-instance) ===
+        self._copula.partial_fit(x_padded.reshape(1, -1))
+
+        # === 2. Buffer accumulation (A5) ===
+        self._batch_X.append(x_padded)
+        self._batch_y.append(y)
+
+        if len(self._batch_X) < self.batch_size:
+            return  # wait until a full batch is ready
+
+        # === 3. Batch is full: run DensityPeaks once for the whole batch ===
+        batch_X = np.array(self._batch_X)           # (batch_size, d)
+        batch_y = list(self._batch_y)
+
+        # Transform entire batch to latent space
+        Z_batch = self._copula.transform_to_latent(batch_X)  # (batch_size, d)
+
+        # Covariance EM update on the batch
+        self._copula.update_covariance_em(batch_X, Z_batch, self.decay_coef)
+
+        # Add all batch instances to DensityPeaks buffer, then propagate once
+        for i in range(len(batch_X)):
+            z_filled = np.nan_to_num(Z_batch[i], nan=0.0)
+            self._density_peaks.add_instance(z_filled, batch_y[i], is_labeled=True)
+        self._density_peaks.propagate_labels()  # updates internal buffer labels
+
+        # === 4. Update classifiers for each instance in the batch ===
+        X_rec_batch = self._copula.reconstruct_features(batch_X, Z_batch)
+
+        for i in range(len(batch_X)):
+            effective_y = batch_y[i]
+
+            x_in = np.nan_to_num(X_rec_batch[i], nan=0.0)
+            x_in = np.append(x_in, 1.0)
+            self._sgd_update(self._w_obs, x_in, effective_y)
+
+            z_in = np.nan_to_num(Z_batch[i], nan=0.0)
+            z_in = np.append(z_in, 1.0)
+            self._sgd_update(self._w_lat, z_in, effective_y)
+
+            # Update ensemble weights
+            score_obs = np.dot(self._w_obs, x_in)
+            score_lat = np.dot(self._w_lat, z_in)
+            self._loss_obs += self._logistic_loss(score_obs, effective_y)
+            self._loss_lat += self._logistic_loss(score_lat, effective_y)
+            self._num_updates += 1
+
+            tau = 2 * np.sqrt(2 * np.log(2) / max(1, self._num_updates))
+            w_o = np.exp(-tau * self._loss_obs)
+            w_z = np.exp(-tau * self._loss_lat)
+            if w_o + w_z > 0:
+                self.ensemble_weight = w_o / (w_o + w_z)
+
+        # Clear batch buffer
+        self._batch_X = []
+        self._batch_y = []
 
     def predict_proba(self, instance: Instance) -> np.ndarray:
         if not self._trained:
             return np.array([0.5, 0.5])
             
-        x = np.array(instance.x, dtype=float)
+        x = np.asarray(instance.x, dtype=float)
         
         # Align
         x_padded = np.full(self._max_features_seen, np.nan)

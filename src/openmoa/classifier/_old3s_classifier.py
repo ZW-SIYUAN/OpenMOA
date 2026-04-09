@@ -155,25 +155,29 @@ class OLD3SClassifier(Classifier):
         }
 
     def _normalize(self, x_raw, indices, stats):
-        """Online Min-Max Normalization to [0, 1]."""
+        """Online Min-Max normalisation to [0, 1].
+
+        *stats* is a dict with keys ``'min'`` / ``'max'``, each of length
+        ``len(indices)`` (the subset dimension), **not** ``len(x_raw)``.
+        """
         x_sub = x_raw[indices]
-        
+
         if stats['min'] is None:
             stats['min'] = x_sub.copy()
             stats['max'] = x_sub.copy()
         else:
-            if len(x_raw) == len(stats['min']):
+            if len(x_sub) == len(stats['min']):   # ← was: len(x_raw), which is wrong
                 stats['min'] = np.minimum(stats['min'], x_sub)
                 stats['max'] = np.maximum(stats['max'], x_sub)
-        
+            else:
+                # Dimension mismatch after a feature-space transition;
+                # fall back to clipping until stats are re-initialised.
+                return np.clip(x_sub, 0.0, 1.0)
+
         denom = stats['max'] - stats['min']
         denom[denom < 1e-9] = 1.0
-        
-        if len(x_raw) != len(stats['min']):
-             return np.clip(x_raw, 0.0, 1.0)
 
-        x_norm = (x_sub - stats['min']) / denom
-        return np.clip(x_norm, 0.0, 1.0)
+        return np.clip((x_sub - stats['min']) / denom, 0.0, 1.0)
 
     def _detect_stage(self, indices):
         """Reactive State Machine for Feature Evolution."""
@@ -219,7 +223,7 @@ class OLD3SClassifier(Classifier):
 
     def train(self, instance: Instance):
         self.t += 1
-        x_full = np.array(instance.x, dtype=np.float32)
+        x_full = np.asarray(instance.x, dtype=np.float32)
         x_full = np.nan_to_num(x_full, nan=0.0)
         y = torch.tensor([instance.y_index], dtype=torch.long, device=self.device)
         
@@ -281,7 +285,7 @@ class OLD3SClassifier(Classifier):
                 self._update_ensemble_logic(x_curr, y)
 
     def predict_proba(self, instance: Instance) -> np.ndarray:
-        x_full = np.array(instance.x, dtype=np.float32)
+        x_full = np.asarray(instance.x, dtype=np.float32)
         indices = getattr(instance, 'feature_indices', np.arange(len(x_full)))
         
         if self.model_curr is None:
@@ -326,10 +330,11 @@ class OLD3SClassifier(Classifier):
         w_loss.backward()
         bundle['opt_clf'].step()
         with torch.no_grad():
+            # P4: vectorised in-place update — no per-layer Python loop or temp tensors
             decay = torch.tensor(self.beta, device=self.device)
-            for i, l in enumerate(losses):
-                bundle['hbp_weights'][i] *= torch.pow(decay, l)
-            bundle['hbp_weights'] /= bundle['hbp_weights'].sum()
+            losses_t = torch.stack([l.detach() for l in losses])  # (num_layers,)
+            bundle['hbp_weights'].mul_(decay.pow(losses_t))
+            bundle['hbp_weights'].div_(bundle['hbp_weights'].sum())
 
     def _predict_hbp(self, bundle, z):
         preds = bundle['clf'](z)
