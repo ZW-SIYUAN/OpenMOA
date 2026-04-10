@@ -22,11 +22,10 @@ OpenMOA
    :target: https://github.com/ZW-SIYUAN/OpenMOA
    :alt: Link to GitHub
 
-Machine learning library tailored for data streams. Featuring a Python API
-tightly integrated with MOA (**Stream Learners**), PyTorch (**Neural
-Networks**), and scikit-learn (**Machine Learning**). OpenMOA provides a
-**fast** python interface to leverage the state-of-the-art algorithms in the
-field of data streams.
+A Python library for **Utilitarian Online Learning (UOL)** in dynamic feature
+spaces. OpenMOA provides a unified API integrating MOA (**Stream Learners**),
+CapyMOA (**Stream Learning Backend**), and PyTorch (**Deep Models**) for
+reproducible, real-time learning under evolving feature spaces.
 
 To setup OpenMOA, simply install it via pip. If you have any issues with the
 installation (like not having Java installed) or if you want GPU support, please
@@ -55,38 +54,19 @@ refer to the :ref:`installation`. Once installed take a look at the
    on the `GitHub Issues <https://github.com/ZW-SIYUAN/OpenMOA/issues>`_
    or talk to us on `Discord <https://discord.gg/spd2gQJGAb>`_.
 
-.. image:: /images/arf100_cpu_time.png
-   :alt: Performance plot
-   :align: center
-   :class: only-light
-
-.. image:: /images/arf100_cpu_time_dark.png
-   :alt: Performance plot
-   :align: center
-   :class: only-dark
-
-Benchmark comparing OpenMOA against other data stream libraries. The benchmark
-was performed using an ensemble of 100 ARF learners trained on
-:class:`openmoa.datasets.RTG_2abrupt` dataset containing 100,000 samples and 30
-features.  You can find the code to reproduce this benchmark in
-`benchmarking.py <https://github.com/ZW-SIYUAN/OpenMOA/blob/main/notebooks/benchmarking.py>`_.
-*OpenMOA has the speed of MOA with the flexibility of Python and the richness of
-Python's data science ecosystem.*
-
 📖 Cite Us
 --------------
 
 If you use OpenMOA in your research, please cite us using the following Bibtex entry::
 
    @misc{
-      gomes2025openmoaefficientmachinelearning,
-      title={{OpenMOA}: Efficient Machine Learning for Data Streams in Python},
-      author={Heitor Murilo Gomes and Anton Lee and Nuwan Gunasekara and Yibin Sun and Guilherme Weigert Cassales and Justin Jia Liu and Marco Heyden and Vitor Cerqueira and Maroua Bahri and Yun Sing Koh and Bernhard Pfahringer and Albert Bifet},
+      ZhiliWang2025OpenMOA,
+      title={{OpenMOA}: A Python Library for Utilitarian Online Learning},
+      author={Zhili Wang and Heitor M. Gomes and Yi He},
       year={2025},
-      eprint={2502.07432},
       archivePrefix={arXiv},
       primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2502.07432}
+      url={https://arxiv.org/abs/}
    }
 
 .. _installation:

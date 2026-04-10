@@ -146,4 +146,25 @@ SOURCE_LIST: Dict[str, _Source] = {
         "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/splice.arff.gz", # OpenML ID 46
         None,
     ),
+
+    # ==========================================
+    # New COVID and Seagate Datasets
+    # ==========================================
+
+    "Seagate_Binary": _Source(
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/seagate_Binary.arff.gz",
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/seagate_Binary.csv.gz",
+    ),
+    "Seagate_Multi": _Source(
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/seagate_Multi.arff.gz",
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/seagate_Multi.csv.gz",
+    ),
+    "C6_Stay_Home_Requirements": _Source(
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/c6_covid_selected.arff.gz",
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/c6_covid_selected.csv",
+    ),
+    "C7_Internal_Movement": _Source(
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/c7_covid_selected.arff.gz",
+        "https://huggingface.co/datasets/ZhiliWangsiyuan/openmoa-benchmarks/resolve/main/c7_covid_selected.csv",
+    ),
 }

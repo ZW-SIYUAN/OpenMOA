@@ -642,3 +642,83 @@ class Splice(DownloadARFFGzip):
     _filename = _get_filename("Splice")
     _remote_url = _get_remote_url("Splice")
     _length = 3_190
+
+
+# ============================================================
+# COVID and Seagate Datasets
+# ============================================================
+
+
+class SeagateBinary(DownloadARFFGzip):
+    """Seagate hard-disk failure detection (binary classification).
+
+    Sensor readings from Seagate hard drives used to predict whether a drive
+    will fail (1) or remain healthy (0).
+
+    * Number of instances: 49,999
+    * Number of attributes: 94
+    * Number of classes: 2 (0 = healthy, 1 = failure)
+    """
+
+    _filename = _get_filename("Seagate_Binary")
+    _remote_url = _get_remote_url("Seagate_Binary")
+    _length = 49_999
+
+
+class SeagateMulti(DownloadARFFGzip):
+    """Seagate hard-disk failure mode prediction (multi-class classification).
+
+    Sensor readings from Seagate hard drives used to predict the specific
+    failure mode of the drive (11 failure categories plus healthy).
+
+    * Number of instances: 11,800
+    * Number of attributes: 94
+    * Number of classes: 11 (0–10)
+    """
+
+    _filename = _get_filename("Seagate_Multi")
+    _remote_url = _get_remote_url("Seagate_Multi")
+    _length = 11_800
+
+
+class C6StayHomeRequirements(DownloadARFFGzip):
+    """COVID-19 policy dataset: C6 Stay at Home Requirements.
+
+    Predicts the level of stay-at-home requirements imposed by a
+    country/region during the COVID-19 pandemic.
+
+    * Number of instances: 789
+    * Number of attributes: 202
+    * Number of classes: 3 (0 = no requirements, 1–2 = increasing restriction levels)
+
+    **References:**
+
+    #.  Hale, T., et al. "A global panel database of pandemic policies (Oxford
+        COVID-19 Government Response Tracker)." Nature Human Behaviour, 2021.
+    """
+
+    _filename = _get_filename("C6_Stay_Home_Requirements")
+    _remote_url = _get_remote_url("C6_Stay_Home_Requirements")
+    _length = 789
+
+
+class C7InternalMovement(DownloadARFFGzip):
+    """COVID-19 policy dataset: C7 Restrictions on Internal Movement.
+
+    Predicts the level of restrictions on internal movement imposed by a
+    country/region during the COVID-19 pandemic.
+
+    * Number of instances: 789
+    * Number of attributes: 202
+    * Number of classes: 3 (0 = no restrictions, 1–2 = increasing restriction levels)
+
+    **References:**
+
+    #.  Hale, T., et al. "A global panel database of pandemic policies (Oxford
+        COVID-19 Government Response Tracker)." Nature Human Behaviour, 2021.
+    """
+
+    _filename = _get_filename("C7_Internal_Movement")
+    _remote_url = _get_remote_url("C7_Internal_Movement")
+    _length = 789
+

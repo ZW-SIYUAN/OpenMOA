@@ -268,19 +268,9 @@ class DensityPeakClustering:
         return pseudo_labels, confidence
     
     def _compute_distances(self, X):
-        n = len(X)
-        # Handling NaNs in distance calculation is tricky. 
-        # Simple Euclidean ignoring NaNs or filling them?
-        # Assuming X here comes from Z_latent which is filled.
+        from scipy.spatial.distance import cdist
         X_filled = np.nan_to_num(X, nan=0.0)
-        
-        # Vectorized distance matrix
-        # (a-b)^2 = a^2 + b^2 - 2ab
-        sum_sq = np.sum(X_filled**2, axis=1)
-        dist_sq = sum_sq[:, None] + sum_sq[None, :] - 2 * np.dot(X_filled, X_filled.T)
-        dist_sq = np.maximum(dist_sq, 0.0) # Numerical stability
-        dist = np.sqrt(dist_sq)
-        return dist
+        return cdist(X_filled, X_filled, metric="euclidean")
     
     def _compute_density_peaks(self, dist_matrix):
         n = len(dist_matrix)

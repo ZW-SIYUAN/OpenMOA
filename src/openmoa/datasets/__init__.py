@@ -51,6 +51,12 @@ from ._datasets import (
     Frogs,
     Wine,
     Splice,
+
+    # COVID and Seagate Datasets
+    SeagateBinary,
+    SeagateMulti,
+    C6StayHomeRequirements,
+    C7InternalMovement,
 )
 from ._utils import get_download_dir
 from . import downloader
@@ -89,4 +95,8 @@ __all__ = [
     "downloader",
     "get_download_dir",
     "Splice",
+    "SeagateBinary",
+    "SeagateMulti",
+    "C6StayHomeRequirements",
+    "C7InternalMovement",
 ]

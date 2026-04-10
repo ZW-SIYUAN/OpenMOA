@@ -1,7 +1,8 @@
+import gc
 import shutil
+import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Any, Optional
 
 import wget
@@ -38,11 +39,20 @@ class DownloadableDataset(MOAStream, ABC):
 
         if not stream.exists():
             if auto_download:
-                with TemporaryDirectory() as working_directory:
-                    working_directory = Path(working_directory)
+                # Use mkdtemp instead of TemporaryDirectory context manager.
+                # On Windows, TemporaryDirectory.__exit__ raises WinError 32
+                # when antivirus/Windows Defender holds a handle on the
+                # downloaded .gz file during cleanup — even though the
+                # extracted .arff was already successfully moved to the cache.
+                # We suppress cleanup errors so the cached file is always used.
+                working_directory = Path(tempfile.mkdtemp())
+                try:
                     stream_archive = self.download(working_directory)
                     tmp_stream = self.extract(stream_archive)
                     stream = shutil.move(tmp_stream, stream)
+                finally:
+                    gc.collect()  # release any lingering file handles
+                    shutil.rmtree(working_directory, ignore_errors=True)
             else:
                 raise FileNotFoundError(
                     f"Dataset {self._filename} not found in {directory}"

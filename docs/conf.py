@@ -11,12 +11,12 @@ from openmoa.__about__ import __version__
 from docs.util.github_link import make_linkcode_resolve
 
 discord_link = "https://discord.gg/spd2gQJGAb"
-contact_email = "heitor.gomes@vuw.ac.nz"
+contact_email = "zwang68@wm.edu"
 openmoa_github = "https://github.com/ZW-SIYUAN/OpenMOA"
 
 project = "OpenMOA"
 copyright = "2024 OpenMOA Developers"
-author = "Heitor Murilo Gomes, Anton Lee, Nuwan Gunasekara, Marco Heyden, Yibin Sun, Guilherme Weigert Cassales"
+author = "Yi He, Zhili Wang, Heitor Murilo Gomes"
 release = __version__
 html_title = f"{project}"
 
@@ -128,7 +128,7 @@ and classes in the documentation.
 linkcode_resolve = make_linkcode_resolve(
     "openmoa",
     (
-        "https://github.com/adaptive-machine-learning/"
+        "https://github.com/ZW-SIYUAN/"
         "OpenMOA/blob/{revision}/src/"
         "{package}/{path}#L{lineno}"
     ),
