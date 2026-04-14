@@ -40,7 +40,7 @@ python -c "import openmoa; print(openmoa.__version__)"
 ---
 
 ![Benchmark Image]()
-Our benchmark evaluates ten representative UOL and OL algorithms across 11 binary and 6 multi-class datasets under three dynamic feature-space paradigms.
+Our benchmark evaluates ten representative UOL and OL algorithms across 12 binary and 9 multi-class datasets under three dynamic feature-space paradigms.
 Built upon OpenMOA’s unified API, all experiments follow standardized feature-evolution assumptions and prequential evaluation protocols, enabling fair, reproducible, and comprehensive comparison across diverse streaming environments.
 You can find the code to reproduce this benchmark in
 [`demo/demo_fesl_benchmark_binary.py`](https://github.com/ZW-SIYUAN/OpenMOA/blob/main/demo/demo_fesl_benchmark_binary.py).
